@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- ═══════════════════════════════════════════
+     HEAD fragment
+     Usage: <head th:replace="~{fragments/layout :: head('Titre page')}"></head>
+═══════════════════════════════════════════ -->
+<head th:fragment="head(title)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title} + ' | CommercialApp'">CommercialApp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #3730a3;
+            --sidebar-bg: #0f172a;
+            --sidebar-width: 260px;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            height: 100vh;
+            position: fixed; left: 0; top: 0;
+            overflow-y: auto; z-index: 1000;
+        }
+        .sidebar-brand { padding: 1.5rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,.08); }
+        .sidebar-brand h5 { color: #fff; font-weight: 700; font-size: 1.1rem; margin: 0; }
+        .sidebar-section {
+            padding: .5rem 1rem .2rem;
+            color: rgba(255,255,255,.35);
+            font-size: .7rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: .08em;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,.65);
+            padding: .6rem 1.25rem;
+            border-radius: 8px;
+            margin: 2px 8px;
+            font-size: .88rem; font-weight: 500;
+            display: flex; align-items: center; gap: .65rem;
+            transition: all .2s;
+            text-decoration: none;
+        }
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active { background: rgba(79,70,229,.25); color: #fff; }
+        .sidebar .nav-link i { font-size: 1rem; width: 20px; }
+
+        /* ── LOGOUT BUTTON (same style as nav-link) ── */
+        .sidebar .btn-logout {
+            color: #f87171;
+            background: none; border: none;
+            width: calc(100% - 16px);
+            padding: .6rem 1.25rem;
+            border-radius: 8px;
+            margin: 2px 8px;
+            font-size: .88rem; font-weight: 500;
+            display: flex; align-items: center; gap: .65rem;
+            cursor: pointer; transition: all .2s;
+            text-align: left;
+        }
+        .sidebar .btn-logout:hover { background: rgba(248,113,113,.15); }
+
+        /* ── MAIN CONTENT ── */
+        .main-content { margin-left: var(--sidebar-width); min-height: 100vh; }
+        .topbar {
+            background: #fff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: .75rem 1.5rem;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .page-content { padding: 1.75rem; }
+
+        /* ── STAT CARDS ── */
+        .stat-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            border: 1px solid #e2e8f0;
+            transition: transform .2s, box-shadow .2s;
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+        .stat-card .icon {
+            width: 48px; height: 48px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem;
+        }
+        .stat-card .value { font-size: 1.8rem; font-weight: 700; color: #0f172a; }
+        .stat-card .label { color: #64748b; font-size: .85rem; font-weight: 500; }
+
+        /* ── TABLE CARD ── */
+        .table-card {
+            background: #fff; border-radius: 12px;
+            border: 1px solid #e2e8f0; overflow: hidden;
+        }
+        .table-card .table { margin: 0; }
+        .table thead th {
+            background: #f8fafc; border-color: #e2e8f0;
+            font-weight: 600; font-size: .82rem;
+            text-transform: uppercase; color: #475569; letter-spacing: .05em;
+        }
+        .table tbody tr:hover { background: #f8fafc; }
+
+        /* ── BADGES ── */
+        .badge-actif   { background: #dcfce7; color: #166534; }
+        .badge-inactif { background: #fee2e2; color: #991b1b; }
+        .badge-bas     { background: #fef3c7; color: #92400e; }
+
+        /* ── FORM CARD ── */
+        .form-card { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.75rem; }
+        .form-label { font-weight: 600; font-size: .88rem; color: #374151; }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79,70,229,.15);
+        }
+        .btn-primary { background: var(--primary); border-color: var(--primary); }
+        .btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+
+        /* ── ALERTS ── */
+        .alert { border-radius: 10px; border: none; }
+    </style>
+</head>
+
+
+<!-- ═══════════════════════════════════════════
+     SIDEBAR fragment
+     Usage: <div th:replace="~{fragments/layout :: sidebar('dashboard')}"></div>
+═══════════════════════════════════════════ -->
+<nav th:fragment="sidebar(active)" class="sidebar">
+
+    <!-- Brand -->
+    <div class="sidebar-brand">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-bag-heart-fill fs-4" style="color: var(--primary)"></i>
+            <div>
+                <h5>CommercialApp</h5>
+                <span sec:authorize="hasRole('SUPERADMIN')"
+                      style="background:var(--primary);color:#fff;padding:2px 8px;border-radius:6px;font-size:.7rem;font-weight:600;">
+                    SUPER ADMIN
+                </span>
+                <span sec:authorize="hasRole('ADMIN') and !hasRole('SUPERADMIN')"
+                      style="background:#0891b2;color:#fff;padding:2px 8px;border-radius:6px;font-size:.7rem;font-weight:600;">
+                    ADMIN
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="py-2">
+
+        <!-- PRINCIPAL -->
+        <div class="sidebar-section mt-2">Principal</div>
+        <a sec:authorize="hasRole('SUPERADMIN')"
+           href="/superadmin/dashboard"
+           th:classappend="${active=='dashboard' ? ' active' : ''}"
+           class="nav-link">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+        <a sec:authorize="hasRole('ADMIN') and !hasRole('SUPERADMIN')"
+           href="/admin/dashboard"
+           th:classappend="${active=='dashboard' ? ' active' : ''}"
+           class="nav-link">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+
+        <!-- CATALOGUE -->
+        <div class="sidebar-section mt-2">Catalogue</div>
+        <a href="/admin/products"
+           th:classappend="${active=='products' ? ' active' : ''}"
+           class="nav-link">
+            <i class="bi bi-box-seam"></i> Produits
+        </a>
+        <a href="/admin/categories"
+           th:classappend="${active=='categories' ? ' active' : ''}"
+           class="nav-link">
+            <i class="bi bi-grid-3x3-gap"></i> Catégories
+        </a>
+        <a href="/admin/fournisseurs"
+           th:classappend="${active=='fournisseurs' ? ' active' : ''}"
+           class="nav-link">
+            <i class="bi bi-truck"></i> Fournisseurs
+        </a>
+
+        <!-- UTILISATEURS -->
+        <div class="sidebar-section mt-2">Utilisateurs</div>
+        <a href="/admin/users"
+           th:classappend="${active=='users' ? ' active' : ''}"
+           class="nav-link">
+            <i class="bi bi-people"></i> Utilisateurs
+        </a>
+        <a sec:authorize="hasRole('SUPERADMIN')"
+           href="/superadmin/admins"
+           th:classappend="${active=='admins' ? ' active' : ''}"
+           class="nav-link">
+            <i class="bi bi-shield-check"></i> Admins
+        </a>
+        <a sec:authorize="hasRole('SUPERADMIN')"
+           href="/superadmin/users"
+           th:classappend="${active=='allusers' ? ' active' : ''}"
+           class="nav-link">
+            <i class="bi bi-person-lines-fill"></i> Tous les users
+        </a>
+
+        <!-- COMPTE -->
+        <div class="sidebar-section mt-2">Compte</div>
+
+        <!--
+            ✅ LOGOUT CORRECT — utilise POST + CSRF
+            ❌ Ne JAMAIS faire <a href="/logout"> → ne fonctionne pas avec Spring Security 6
+        -->
+        <form th:action="@{/logout}" method="post" style="margin: 2px 0;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="btn-logout">
+                <i class="bi bi-box-arrow-right"></i> Déconnexion
+            </button>
+        </form>
+
+    </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════
+     TOPBAR fragment
+     Usage: <div th:replace="~{fragments/layout :: topbar('Titre page')}"></div>
+═══════════════════════════════════════════ -->
+<div th:fragment="topbar(title)" class="topbar d-flex justify-content-between align-items-center">
+    <div>
+        <h6 class="mb-0 fw-bold" th:text="${title}">Page</h6>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+        <div class="dropdown">
+            <button class="btn btn-sm btn-light dropdown-toggle d-flex align-items-center gap-2"
+                    type="button" data-bs-toggle="dropdown">
+                <div style="width:30px;height:30px;border-radius:50%;background:var(--primary);
+                            color:#fff;display:flex;align-items:center;justify-content:center;
+                            font-weight:700;font-size:.8rem;">
+                    <span sec:authentication="name" th:text="${#strings.substring(#authentication.name,0,1).toUpperCase()}">A</span>
+                </div>
+                <span class="d-none d-md-inline" sec:authentication="name">Admin</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                <li><h6 class="dropdown-header" sec:authentication="name">Compte</h6></li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <!-- ✅ LOGOUT dans le dropdown aussi — POST obligatoire -->
+                    <form th:action="@{/logout}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="dropdown-item text-danger">
+                            <i class="bi bi-box-arrow-right me-2"></i>Déconnexion
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     ALERTS fragment
+     Usage: <div th:replace="~{fragments/layout :: alerts}"></div>
+═══════════════════════════════════════════ -->
+<div th:fragment="alerts">
+    <div th:if="${success}" class="alert alert-success d-flex align-items-center gap-2 mb-4">
+        <i class="bi bi-check-circle-fill"></i>
+        <span th:text="${success}"></span>
+    </div>
+    <div th:if="${error}" class="alert alert-danger d-flex align-items-center gap-2 mb-4">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span th:text="${error}"></span>
+    </div>
+    <div th:if="${info}" class="alert alert-info d-flex align-items-center gap-2 mb-4">
+        <i class="bi bi-info-circle-fill"></i>
+        <span th:text="${info}"></span>
+    </div>
+</div>
+
+</html>

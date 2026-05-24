@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Modifier Catégorie')}"></head>
+<body>
+<div class="d-flex">
+    <div th:replace="~{fragments/layout :: sidebar('categories')}"></div>
+    <div class="main-content flex-grow-1">
+        <div th:replace="~{fragments/layout :: topbar('Modifier une Catégorie')}"></div>
+        <div class="page-content">
+            <div class="form-card" style="max-width: 600px">
+                <h5 class="fw-700 mb-4">
+                    <i class="bi bi-grid-3x3-gap me-2 text-primary"></i>Modifier la catégorie
+                </h5>
+                <form th:action="@{/admin/categories/update}" th:object="${categorie}" method="post">
+                    <input type="hidden" th:field="*{id}"/>
+                    <div class="mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" th:field="*{nom}" class="form-control"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea th:field="*{description}" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" th:field="*{actif}" role="switch"/>
+                            <label class="form-check-label">Active</label>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-2"></i>Mettre à jour
+                        </button>
+                        <a href="/admin/categories" class="btn btn-outline-secondary">Annuler</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

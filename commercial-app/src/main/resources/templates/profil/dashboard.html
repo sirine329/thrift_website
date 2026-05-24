@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Profil - ThriftBy</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root{--green:#1DB954;--green-dark:#0f7f36;--green-soft:#E8F8EE;--text:#172033;--muted:#6B7280;--border:#E5E7EB;--bg:#F7F8FA;--radius:12px;--shadow:0 2px 14px rgba(15,23,42,.07)}
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text)}
+        h1,h2,h3,.syne{font-family:'Syne',sans-serif}
+        .tb-nav{height:62px;background:#fff;border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;position:sticky;top:0;z-index:20;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+        .brand{font-family:'Syne',sans-serif;color:var(--green);font-size:1.55rem;font-weight:800;text-decoration:none;margin-right:28px}
+        .tb-search{position:relative;max-width:440px;flex:1}
+        .tb-search input{width:100%;border:1px solid var(--border);border-radius:999px;background:#f8fafc;padding:9px 16px 9px 40px;font-size:.88rem;outline:none}
+        .tb-search i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted)}
+        .nav-actions{margin-left:auto;display:flex;align-items:center;gap:6px}
+        .nav-lk{border:0;background:transparent;color:var(--muted);text-decoration:none;font-size:.87rem;font-weight:600;padding:8px 12px;border-radius:9px;display:flex;align-items:center;gap:6px}
+        .nav-lk:hover{background:#f3f4f6;color:var(--text)}
+        .btn-sell{background:var(--green);color:#fff;text-decoration:none;border-radius:999px;padding:9px 18px;font-weight:800;font-size:.86rem;display:flex;align-items:center;gap:6px}
+        .wrap{max-width:1080px;margin:22px auto 54px;padding:0 18px}
+        .flash{padding:12px 16px;border-radius:10px;background:var(--green-soft);border:1px solid #bce9cc;color:var(--green-dark);margin-bottom:14px;font-weight:700;font-size:.9rem}
+        .profile-header{min-height:150px;background:linear-gradient(135deg,#0d4b25 0%,#17b251 100%);border-radius:12px;color:#fff;padding:26px 32px;display:flex;align-items:center;gap:22px;position:relative;overflow:hidden;margin-bottom:18px}
+        .profile-header:after{content:'';position:absolute;right:-34px;top:-34px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.08)}
+        .avatar{width:82px;height:82px;border-radius:50%;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.38);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;flex:0 0 auto}
+        .profile-main{min-width:0;position:relative;z-index:1}
+        .profile-name{font-family:'Syne',sans-serif;font-size:1.55rem;font-weight:800;line-height:1}
+        .profile-email,.profile-level{font-size:.83rem;opacity:.86;margin-top:6px}
+        .stats{display:flex;gap:28px;margin-top:14px;flex-wrap:wrap}
+        .stat strong{display:block;font-family:'Syne',sans-serif;font-size:1.3rem;line-height:1}
+        .stat span{font-size:.68rem;text-transform:uppercase;font-weight:800;opacity:.85}
+        .profile-actions{margin-left:auto;display:flex;flex-direction:column;gap:8px;position:relative;z-index:1}
+        .pill-action{height:34px;min-width:185px;border-radius:999px;padding:0 16px;border:1px solid rgba(255,255,255,.48);display:flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;font-weight:800;font-size:.82rem}
+        .pill-action.primary{background:#fff;color:var(--green-dark)}
+        .pill-action.ghost{background:rgba(255,255,255,.13);color:#fff}
+        .profile-panel{background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+        .tabs{display:flex;border-bottom:1px solid var(--border);overflow:auto}
+        .tab-btn{border:0;background:#fff;color:var(--muted);padding:14px 22px;font-weight:800;font-size:.86rem;display:flex;align-items:center;gap:7px;border-bottom:3px solid transparent;white-space:nowrap}
+        .tab-btn.active{color:var(--green);border-bottom-color:var(--green)}
+        .tab-content{display:none;padding:22px 26px}
+        .tab-content.active{display:block}
+        .section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+        .section-head h2{font-size:1rem;font-weight:800;margin:0}
+        .add-link{color:var(--green);text-decoration:none;font-weight:800;font-size:.84rem}
+        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px}
+        .item-card{background:#fff;border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 2px 10px rgba(15,23,42,.06);text-decoration:none;color:inherit;display:block;position:relative}
+        .item-media{position:relative;overflow:hidden;background:#e9f7ef}
+        .item-img,.item-ph{width:100%;aspect-ratio:3/4;object-fit:cover;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:2rem}
+        .item-card.sold .item-img,.item-card.sold .item-ph{filter:saturate(.5) grayscale(.25)}
+        .sold-overlay{position:absolute;inset:0;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;z-index:3;pointer-events:none}
+        .sold-overlay span{background:rgba(220,38,38,.96);color:#fff;border:4px solid #fff;border-radius:12px;padding:10px 22px;font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;transform:rotate(-14deg);box-shadow:0 14px 34px rgba(127,29,29,.32)}
+        .item-body{padding:11px 12px}
+        .price{font-family:'Syne',sans-serif;font-weight:800;color:var(--green);font-size:1.03rem}
+        .title{font-size:.84rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+        .meta{font-size:.75rem;color:var(--muted);margin-top:4px}
+        .card-actions{display:flex;gap:8px;margin-top:10px}
+        .empty{padding:38px;text-align:center;color:var(--muted)}
+        .publish-empty{border:1.5px dashed #d5dbe3;border-radius:8px;min-height:190px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);text-decoration:none;font-size:.86rem}
+        .publish-empty i{display:block;font-size:2rem;color:#aeb6c1;margin-bottom:10px}
+        .order-card{border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;align-items:center;gap:14px;margin-bottom:12px}
+        .order-img{width:64px;height:64px;border-radius:10px;object-fit:cover;background:#e9f7ef;display:flex;align-items:center;justify-content:center;color:#9ca3af;flex:0 0 auto}
+        .order-info{flex:1}.order-num{font-family:'Syne',sans-serif;font-weight:800}.order-meta{font-size:.82rem;color:var(--muted);margin-top:3px}.order-price{font-family:'Syne',sans-serif;color:var(--green);font-weight:800}
+        .badge-soft{background:#f3f4f6;color:#374151;border-radius:999px;padding:4px 10px;font-size:.74rem;font-weight:800}
+        @media (max-width:760px){.tb-search{display:none}.nav-lk span{display:none}.profile-header{align-items:flex-start;flex-direction:column;padding:24px}.profile-actions{margin-left:0;width:100%}.pill-action{width:100%}.tabs{justify-content:flex-start}.tab-content{padding:18px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    </style>
+</head>
+<body>
+<nav class="tb-nav">
+    <a href="/boutique" class="brand">ThriftBy</a>
+    <form class="tb-search" action="/boutique/shop" method="get">
+        <i class="bi bi-search"></i>
+        <input type="text" name="q" placeholder="Rechercher...">
+    </form>
+    <div class="nav-actions">
+        <a href="/boutique/shop" class="nav-lk"><i class="bi bi-grid"></i><span>Catalogue</span></a>
+        <a href="/panier" class="nav-lk"><i class="bi bi-bag"></i><span>Panier</span></a>
+        <a href="/profil" class="nav-lk" style="color:var(--green)"><i class="bi bi-person"></i><span>Profil</span></a>
+        <form th:action="@{/logout}" method="post" style="display:inline;margin:0">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit" class="nav-lk"><i class="bi bi-box-arrow-right"></i></button>
+        </form>
+        <a href="/vendeur/publier" class="btn-sell"><i class="bi bi-plus-lg"></i> Vendre</a>
+    </div>
+</nav>
+
+<main class="wrap">
+    <div class="flash" th:if="${success}" th:text="${success}"></div>
+
+    <section class="profile-header">
+        <div class="avatar" th:text="${#strings.substring(user.prenom,0,1)}">U</div>
+        <div class="profile-main">
+            <div class="profile-name" th:text="${user.prenom + ' ' + user.nom}">Nom</div>
+            <div class="profile-email" th:text="${user.email}">email</div>
+            <div class="profile-level" th:text="'Niveau : ' + ${profileLevel}">Niveau : Debutant</div>
+            <div class="stats">
+                <div class="stat"><strong th:text="${#lists.size(commandes)}">0</strong><span>Commandes</span></div>
+                <div class="stat"><strong th:text="${#lists.size(wishlist)}">0</strong><span>Wishlist</span></div>
+                <div class="stat"><strong th:text="${#lists.size(myArticles)}">0</strong><span>Articles</span></div>
+            </div>
+        </div>
+        <div class="profile-actions">
+            <a href="/vendeur/publier" class="pill-action primary"><i class="bi bi-plus-circle"></i> Vendre un article</a>
+            <a href="/profil/edit" class="pill-action ghost"><i class="bi bi-pencil"></i> Modifier le profil</a>
+            <a href="/vendeur/dashboard" class="pill-action ghost" th:if="${user.isVendeur()}"><i class="bi bi-shop"></i> Tableau vendeur</a>
+        </div>
+    </section>
+
+    <section class="profile-panel">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('articles',this)"><i class="bi bi-tags"></i> Mes articles (<span th:text="${#lists.size(myArticles)}">0</span>)</button>
+            <button class="tab-btn" onclick="switchTab('commandes',this)"><i class="bi bi-bag-check"></i> Commandes (<span th:text="${#lists.size(commandes)}">0</span>)</button>
+            <button class="tab-btn" onclick="switchTab('wishlist',this)"><i class="bi bi-heart"></i> Wishlist (<span th:text="${#lists.size(wishlist)}">0</span>)</button>
+        </div>
+
+        <div id="tab-articles" class="tab-content active">
+            <div class="section-head">
+                <h2>Articles publies par moi</h2>
+                <a href="/vendeur/publier" class="add-link">+ Ajouter</a>
+            </div>
+            <div class="grid" th:if="${#lists.isEmpty(myArticles)}">
+                <a href="/vendeur/publier" class="publish-empty"><span><i class="bi bi-plus-circle"></i>Publier<br>un article</span></a>
+                <div class="empty" style="grid-column:span 3">Vous n'avez pas encore publie d'article.</div>
+            </div>
+            <div class="grid" th:if="${!#lists.isEmpty(myArticles)}">
+                <div th:each="article : ${myArticles}" th:class="'item-card' + (${article.statut?.name() == 'VENDU'} ? ' sold' : '')">
+                    <div class="item-media">
+                        <img th:if="${article.photoUrl != null}" th:src="${article.photoUrl}" th:alt="${article.titre}" class="item-img">
+                        <div th:if="${article.photoUrl == null}" class="item-ph"><i class="bi bi-camera"></i></div>
+                        <div class="sold-overlay" th:if="${article.statut?.name() == 'VENDU'}"><span>Vendu</span></div>
+                    </div>
+                    <div class="item-body">
+                        <div class="price" th:text="${article.prix + ' DT'}">0 DT</div>
+                        <div class="title" th:text="${article.titre}">Titre</div>
+                        <div class="meta" th:text="${article.statut?.libelle}">Statut</div>
+                        <div class="card-actions">
+                            <a th:href="@{/boutique/article/{id}(id=${article.id})}" class="btn btn-outline-success btn-sm flex-fill">Voir</a>
+                            <form th:action="@{/vendeur/supprimer/{id}(id=${article.id})}" method="post" class="flex-fill">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit" class="btn btn-outline-danger btn-sm w-100">Supprimer</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-commandes" class="tab-content">
+            <div th:if="${#lists.isEmpty(commandes)}" class="empty">
+                Vous n'avez pas encore passe de commande.<br>
+                <a href="/boutique/shop" class="add-link">Commencer a shopper</a>
+            </div>
+            <div th:each="cmd : ${commandes}" class="order-card">
+                <img th:if="${cmd.item?.photoUrl != null}" th:src="${cmd.item.photoUrl}" th:alt="${cmd.item.titre}" class="order-img">
+                <div th:if="${cmd.item?.photoUrl == null}" class="order-img"><i class="bi bi-camera"></i></div>
+                <div class="order-info">
+                    <div class="order-num" th:text="${cmd.numero}">TB-2024-00001</div>
+                    <div class="order-meta">
+                        <span th:text="${cmd.item?.titre}">Article</span> -
+                        <span th:text="${#temporals.format(cmd.createdAt,'dd/MM/yyyy')}">01/01/2024</span>
+                    </div>
+                </div>
+                <div style="text-align:right">
+                    <div class="order-price" th:text="${cmd.montantTotal + ' DT'}">0 DT</div>
+                    <span class="badge-soft" th:text="${cmd.statut?.libelle ?: cmd.statut?.name()}">Statut</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-wishlist" class="tab-content">
+            <div th:if="${#lists.isEmpty(wishlist)}" class="empty">
+                Votre wishlist est vide.<br>
+                <a href="/boutique/shop" class="add-link">Decouvrir des articles</a>
+            </div>
+            <div class="grid" th:if="${!#lists.isEmpty(wishlist)}">
+                <a th:each="w : ${wishlist}" th:href="@{/boutique/article/{id}(id=${w.item.id})}" th:class="'item-card' + (${w.item.statut?.name() == 'VENDU'} ? ' sold' : '')">
+                    <div class="item-media">
+                        <img th:if="${w.item.photoUrl != null}" th:src="${w.item.photoUrl}" th:alt="${w.item.titre}" class="item-img">
+                        <div th:if="${w.item.photoUrl == null}" class="item-ph"><i class="bi bi-camera"></i></div>
+                        <div class="sold-overlay" th:if="${w.item.statut?.name() == 'VENDU'}"><span>Vendu</span></div>
+                    </div>
+                    <div class="item-body">
+                        <div class="price" th:text="${w.item.prix + ' DT'}">0 DT</div>
+                        <div class="title" th:text="${w.item.titre}">Titre</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function switchTab(id, btn) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + id).classList.add('active');
+        btn.classList.add('active');
+    }
+</script>
+</body>
+</html>

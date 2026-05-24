@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publier un Article – ThriftBy</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root{--green:#1DB954;--green-dark:#159040;--green-light:#E8F8EE;--green-mid:#C3EDD4;--text:#1A1A1A;--muted:#6B7280;--border:#E5E7EB;--bg:#F9FAFB;--white:#FFFFFF;--radius:14px;--shadow:0 2px 12px rgba(0,0,0,.07)}
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text)}
+        h1,h2,h3,.syne{font-family:'Syne',sans-serif}
+        
+        .tb-nav{background:#fff;border-bottom:1px solid var(--border);padding:0 2rem;height:62px;display:flex;align-items:center;position:sticky;top:0;z-index:200;box-shadow:0 1px 8px rgba(0,0,0,.05)}
+        .brand{font-size:1.5rem;font-weight:800;color:var(--green);text-decoration:none;letter-spacing:-1px;font-family:'Syne',sans-serif}
+        .nav-actions{display:flex;align-items:center;gap:6px;margin-left:auto}
+        .nav-lk{color:var(--muted);text-decoration:none;font-size:.875rem;font-weight:500;padding:7px 12px;border-radius:8px;display:flex;align-items:center;gap:5px;transition:all .2s}
+        .nav-lk:hover{background:var(--bg);color:var(--text)}
+        
+        .pw{max-width:700px;margin:2rem auto;padding:0 1.5rem 4rem}
+        
+        .form-card{background:#fff;border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow)}
+        .form-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:1.5rem}
+        
+        .form-group{margin-bottom:1.5rem}
+        .form-label{display:block;font-weight:600;margin-bottom:6px;font-family:'Syne',sans-serif;font-size:.9rem}
+        .form-control,.form-select{border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 14px;font-size:.9rem;width:100%;font-family:'DM Sans',sans-serif;transition:border-color .2s}
+        .form-control:focus,.form-select:focus{border-color:var(--green);outline:none;box-shadow:0 0 0 3px rgba(29,185,84,.1)}
+        textarea.form-control{min-height:120px;resize:vertical}
+        .small-text{font-size:.8rem;color:var(--muted);margin-top:4px}
+        
+        .btn-submit{background:var(--green);color:#fff;border:none;padding:12px 28px;border-radius:50px;font-size:.9rem;font-weight:700;font-family:'Syne',sans-serif;width:100%;cursor:pointer;transition:all .2s;margin-top:1rem}
+        .btn-submit:hover{background:var(--green-dark)}
+        
+        .alert{border-radius:var(--radius);border:none;padding:12px 16px;font-size:.875rem;margin-bottom:1rem}
+        .alert-danger{background:#FEF2F2;color:#991B1B}
+        .alert-success{background:#DCFCE7;color:#166534}
+        
+        .row-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+        @media(max-width:600px){.row-2{grid-template-columns:1fr}}
+        
+        .required{color:var(--green)}
+    </style>
+</head>
+<body>
+<!-- NAV -->
+<nav class="tb-nav">
+    <a href="/boutique" class="brand">🛍️ ThriftBy</a>
+    <div class="nav-actions" style="margin-left:auto">
+        <a href="/profil" class="nav-lk"><i class="bi bi-person"></i> Profil</a>
+        <form th:action="@{/logout}" method="post" style="display:inline; margin:0">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="nav-lk" style="background:none; border:none; cursor:pointer">
+                <i class="bi bi-box-arrow-right"></i> Déconnexion
+            </button>
+        </form>
+    </div>
+</nav>
+
+<div class="pw">
+    <!-- ALERTS -->
+    <div th:if="${error}" class="alert alert-danger">
+        <i class="bi bi-exclamation-circle me-2"></i> <span th:text="${error}"></span>
+    </div>
+
+    <div class="form-card">
+        <h1 class="form-title"><i class="bi bi-plus-circle me-2"></i> Publier un Article</h1>
+
+        <form th:action="@{/vendeur/publier}" method="post" th:object="${item}" enctype="multipart/form-data">
+            <!-- TITRE -->
+            <div class="form-group">
+                <label class="form-label">Titre <span class="required">*</span></label>
+                <input type="text" th:field="*{titre}" class="form-control" 
+                       placeholder="Ex: Robe Vintage Années 90" required>
+                <span class="small-text" th:if="${#fields.hasErrors('titre')}" 
+                      th:errors="*{titre}"></span>
+            </div>
+
+            <!-- DESCRIPTION -->
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea th:field="*{description}" class="form-control" 
+                         placeholder="Décrivez votre article en détail... Marque, condition, matière, etc.">
+                </textarea>
+                <span class="small-text" th:if="${#fields.hasErrors('description')}" 
+                      th:errors="*{description}"></span>
+                <div class="small-text">La description est optionnelle, mais la photo principale est obligatoire.</div>
+            </div>
+
+            <!-- CATÉGORIES -->
+            <div class="form-group">
+                <label class="form-label">Catégories <span class="required">*</span></label>
+                <select name="categorieIds" class="form-select" multiple required size="5">
+                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.nom}"></option>
+                </select>
+                <span class="small-text">Choisissez une ou plusieurs catégories.</span>
+            </div>
+
+            <!-- DEUX COLONNES: PRIX ET TAILLE -->
+            <div class="row-2">
+                <div class="form-group">
+                    <label class="form-label">Prix (DT) <span class="required">*</span></label>
+                    <input type="number" th:field="*{prix}" class="form-control" 
+                           placeholder="0.00" step="0.01" min="0.01" required>
+                    <span class="small-text" th:if="${#fields.hasErrors('prix')}" 
+                          th:errors="*{prix}"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Taille <span class="required">*</span></label>
+                    <select th:field="*{taille}" class="form-select" required>
+                        <option value="">-- Sélectionner --</option>
+                        <option th:each="t : ${tailles}" th:value="${t}" th:text="${t}"></option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- DEUX COLONNES: ÉTAT ET STYLE -->
+            <div class="row-2">
+                <div class="form-group">
+                    <label class="form-label">État <span class="required">*</span></label>
+                    <select th:field="*{etat}" class="form-select" required>
+                        <option value="">-- Sélectionner --</option>
+                        <option th:each="e : ${etats}" th:value="${e}" th:text="${e}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Style</label>
+                    <select th:field="*{style}" class="form-select">
+                        <option th:each="s : ${styles}" th:value="${s}" th:text="${s}"></option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- IMAGE PRINCIPALE ET PHOTOS SUPPLÉMENTAIRES -->
+            <div class="form-group">
+                <label class="form-label">Photo principale <span class="required">*</span></label>
+                <div class="d-flex gap-2 mb-2">
+                    <button type="button" class="btn btn-outline-secondary" onclick="switchImageSource('url')">Ajouter depuis URL</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="switchImageSource('file')">Importer un fichier</button>
+                </div>
+                <div id="image-url-group">
+                    <input type="url" th:field="*{photoUrl}" class="form-control" 
+                           placeholder="https://example.com/image.jpg">
+                    <span class="small-text">Collez l'URL d'une image réelle.</span>
+                </div>
+                <div id="image-file-group" style="display:none; margin-top:1rem;">
+                    <input type="file" name="photoFiles" class="form-control" accept="image/*">
+                    <span class="small-text">Sélectionnez une photo depuis votre appareil.</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Photos supplémentaires</label>
+                <input type="file" name="photoFiles" class="form-control" accept="image/*" multiple>
+                <span class="small-text">Ajoutez une ou plusieurs images supplémentaires.</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Galerie d'URL</label>
+                <input type="url" name="photos" class="form-control mb-2"
+                       placeholder="https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=800&q=80">
+                <input type="url" name="photos" class="form-control mb-2"
+                       placeholder="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=800&q=80">
+                <input type="url" name="photos" class="form-control mb-2"
+                       placeholder="https://images.unsplash.com/photo-1495121605193-b116b5b9c5c8?auto=format&fit=crop&w=800&q=80">
+                <span class="small-text">Collez des URLs d'images de looks ou Pinterest pour enrichir votre galerie.</span>
+            </div>
+
+            <!-- BOUTONS -->
+            <div style="display:flex; gap:1rem; margin-top:2rem">
+                <button type="submit" class="btn-submit" style="flex:1">
+                    <i class="bi bi-check-lg me-2"></i> Publier l'Article
+                </button>
+                <a href="/profil" class="btn-submit" style="flex:1; background:var(--muted); text-decoration:none; display:flex; align-items:center; justify-content:center">
+                    <i class="bi bi-x-lg me-2"></i> Annuler
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function switchImageSource(source) {
+        document.getElementById('image-url-group').style.display = source === 'url' ? 'block' : 'none';
+        document.getElementById('image-file-group').style.display = source === 'file' ? 'block' : 'none';
+    }
+</script>
+</body>
+</html>

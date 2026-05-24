@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${vendeur.prenom + ' ' + vendeur.nom + ' – Vendeur'}">Profil vendeur</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root{--green:#1DB954;--green-dark:#159040;--border:#E5E7EB;--bg:#F9FAFB;--text:#1A1A1A;--muted:#6B7280;--radius:18px;}
+        body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);margin:0;padding:0}
+        .tb-nav{background:#fff;border-bottom:1px solid var(--border);padding:0 2rem;height:62px;display:flex;align-items:center;position:sticky;top:0;z-index:200;box-shadow:0 1px 8px rgba(0,0,0,.05)}
+        .brand{font-size:1.5rem;font-weight:800;color:var(--green);text-decoration:none;letter-spacing:-1px;font-family:'Syne',sans-serif}
+        .nav-actions{display:flex;align-items:center;gap:6px;margin-left:auto}
+        .nav-lk{color:var(--muted);text-decoration:none;font-size:.9rem;font-weight:500;padding:7px 12px;border-radius:10px;display:flex;align-items:center;gap:5px;transition:all .2s}
+        .nav-lk:hover{background:var(--bg);color:var(--text)}
+        .btn-sell{background:var(--green);color:#fff;border:none;padding:9px 20px;border-radius:50px;font-size:.85rem;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:6px;font-family:'Syne',sans-serif;transition:background .2s}
+        .btn-sell:hover{background:var(--green-dark)}
+        .page-header{max-width:1200px;margin:2rem auto 1rem;padding:0 1.5rem}
+        .profile-card{background:#fff;border-radius:var(--radius);box-shadow:0 16px 40px rgba(0,0,0,.06);padding:2rem;display:grid;grid-template-columns:100px 1fr;gap:1.5rem;align-items:center}
+        .avatar{width:90px;height:90px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;font-weight:800;font-family:'Syne',sans-serif}
+        .seller-name{font-size:1.5rem;font-weight:800;margin-bottom:.3rem}
+        .seller-meta{color:var(--muted);font-size:.95rem}
+        .seller-bio{margin-top:.75rem;color:var(--text);line-height:1.7}
+        .seller-stats{display:flex;gap:16px;margin-top:1rem;flex-wrap:wrap}
+        .stat-pill{background:#f8fdf7;border:1px solid #d1efd4;color:var(--green-dark);padding:.8rem 1rem;border-radius:16px;font-weight:700;font-size:.92rem}
+        .items-grid{max-width:1200px;margin:2rem auto;padding:0 1.5rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
+        .item-card{background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.06);text-decoration:none;color:inherit;display:block}
+        .item-card-img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;background:#f4f7f4}
+        .item-media{position:relative;overflow:hidden}
+        .sold-overlay{position:absolute;inset:0;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;z-index:3;pointer-events:none}
+        .sold-overlay span{background:rgba(220,38,38,.96);color:#fff;border:4px solid #fff;border-radius:12px;padding:10px 22px;font-family:'Syne',sans-serif;font-size:1.55rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;transform:rotate(-14deg);box-shadow:0 14px 34px rgba(127,29,29,.32)}
+        .item-card.sold .item-card-img{filter:saturate(.55) grayscale(.25)}
+        .item-card-body{padding:1rem}
+        .item-price{font-size:1.1rem;font-weight:800;color:var(--green);margin-bottom:.35rem}
+        .item-title{font-size:.95rem;font-weight:700;margin-bottom:.4rem}
+        .item-meta{font-size:.82rem;color:var(--muted)}
+    </style>
+</head>
+<body>
+<nav class="tb-nav">
+    <a href="/boutique" class="brand">ThriftBy</a>
+    <div class="nav-actions">
+        <a href="/boutique/shop" class="nav-lk"><i class="bi bi-grid"></i> Catalogue</a>
+        <a href="/panier" class="nav-lk"><i class="bi bi-bag"></i> Panier</a>
+        <a href="/profil" class="nav-lk"><i class="bi bi-person"></i> Profil</a>
+        <a href="/vendeur/publier" class="btn-sell"><i class="bi bi-plus-lg"></i> Vendre</a>
+    </div>
+</nav>
+
+<div class="page-header">
+    <div class="profile-card">
+        <div class="avatar" th:text="${vendeur.prenom != null ? #strings.substring(vendeur.prenom,0,1) : 'V'}">V</div>
+        <div>
+            <div class="seller-name" th:text="${vendeur.prenom + ' ' + vendeur.nom}">Vendeur</div>
+            <div class="seller-meta">
+                <span th:text="${vendeur.ville ?: 'Localisation non renseignée'}">Ville</span>
+            </div>
+            <div class="seller-bio" th:if="${vendeur.bio != null}" th:text="${vendeur.bio}">Bio du vendeur</div>
+            <div class="seller-stats">
+                <div class="stat-pill" th:text="${#lists.size(vendeurItems)} + ' annonces'">0 annonces</div>
+                <div class="stat-pill">Membre depuis <span th:text="${#temporals.format(vendeur.createdAt,'yyyy')}">2024</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="items-grid">
+    <a th:each="item : ${vendeurItems}"
+       th:href="@{/boutique/article/{id}(id=${item.id})}"
+       th:class="'item-card' + (${item.statut?.name() == 'VENDU'} ? ' sold' : '')">
+        <div class="item-media" th:if="${item.photoUrl != null}">
+            <img th:src="${item.photoUrl}" th:alt="${item.titre}" class="item-card-img">
+            <div class="sold-overlay" th:if="${item.statut?.name() == 'VENDU'}"><span>Vendu</span></div>
+        </div>
+        <div class="item-media" th:if="${item.photoUrl == null}">
+            <div class="item-card-img" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1.8rem;">
+                <i class="bi bi-camera"></i>
+            </div>
+            <div class="sold-overlay" th:if="${item.statut?.name() == 'VENDU'}"><span>Vendu</span></div>
+        </div>
+        <div class="item-card-body">
+            <div class="item-price" th:text="${item.prix + ' DT'}">0 DT</div>
+            <div class="item-title" th:text="${item.titre}">Titre</div>
+            <div class="item-meta">
+                <span th:text="${item.categorie?.nom}">Catégorie</span>
+                <span style="float:right;" th:text="${item.taille}">Taille</span>
+            </div>
+        </div>
+    </a>
+    <div th:if="${#lists.isEmpty(vendeurItems)}" class="text-center" style="grid-column:1/-1;padding:3rem;background:#fff;border-radius:24px;box-shadow:0 18px 40px rgba(0,0,0,.06);">
+        <h3>Aucun article disponible</h3>
+        <p class="text-muted">Ce vendeur n'a pas encore publié d'annonces disponibles.</p>
+        <a href="/boutique/shop" class="btn btn-success">Voir d'autres articles</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

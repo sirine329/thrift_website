@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalogue – ThriftBy</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root{--green:#1DB954;--green-dark:#159040;--green-light:#E8F8EE;--green-mid:#C3EDD4;--text:#1A1A1A;--muted:#6B7280;--border:#E5E7EB;--bg:#F9FAFB;--white:#FFFFFF;--radius:14px;--shadow:0 2px 12px rgba(0,0,0,.07);--shadow-h:0 8px 32px rgba(0,0,0,.13)}
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text)}
+        h1,h2,h3,.syne{font-family:'Syne',sans-serif}
+        .tb-nav{background:#fff;border-bottom:1px solid var(--border);padding:0 2rem;height:62px;display:flex;align-items:center;position:sticky;top:0;z-index:200;box-shadow:0 1px 8px rgba(0,0,0,.05)}
+        .brand{font-size:1.5rem;font-weight:800;color:var(--green);text-decoration:none;margin-right:2rem;letter-spacing:-1px;font-family:'Syne',sans-serif}
+        .tb-search{flex:1;max-width:440px;position:relative}
+        .tb-search input{width:100%;border:1.5px solid var(--border);border-radius:50px;padding:9px 18px 9px 42px;font-size:.875rem;background:var(--bg);outline:none;font-family:'DM Sans',sans-serif;transition:border .2s}
+        .tb-search input:focus{border-color:var(--green)}
+        .tb-search i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted)}
+        .nav-actions{display:flex;align-items:center;gap:6px;margin-left:auto}
+        .nav-lk{color:var(--muted);text-decoration:none;font-size:.875rem;font-weight:500;padding:7px 12px;border-radius:8px;display:flex;align-items:center;gap:5px;transition:all .2s}
+        .nav-lk:hover{background:var(--bg);color:var(--text)}
+        .btn-sell{background:var(--green);color:#fff;border:none;padding:9px 20px;border-radius:50px;font-size:.875rem;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:6px;font-family:'Syne',sans-serif;transition:background .2s}
+        .btn-sell:hover{background:var(--green-dark);color:#fff}
+
+        /* LAYOUT */
+        .shop-layout{display:grid;grid-template-columns:220px 1fr;gap:24px;max-width:1200px;margin:0 auto;padding:1.5rem 1.5rem 4rem}
+
+        /* FILTERS SIDEBAR */
+        .filters{background:#fff;border-radius:var(--radius);border:1px solid var(--border);padding:1.25rem;position:sticky;top:80px;height:fit-content}
+        .filter-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.7rem;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:1.25rem 0 .6rem;display:flex;align-items:center;gap:6px}
+        .filter-title:first-child{margin-top:0}
+        .filter-opt{display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer}
+        .filter-opt input[type=checkbox]{accent-color:var(--green);width:15px;height:15px;cursor:pointer}
+        .filter-opt label{font-size:.85rem;cursor:pointer;color:var(--text)}
+        .price-row{display:flex;gap:6px;align-items:center}
+        .price-input{flex:1;border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:.82rem;font-family:'DM Sans',sans-serif;outline:none;transition:border .2s}
+        .price-input:focus{border-color:var(--green)}
+        .btn-filter{width:100%;background:var(--green);color:#fff;border:none;padding:10px;border-radius:50px;font-weight:700;font-size:.875rem;font-family:'Syne',sans-serif;cursor:pointer;margin-top:1rem;transition:background .2s}
+        .btn-filter:hover{background:var(--green-dark)}
+        .btn-reset{width:100%;background:transparent;color:var(--muted);border:1px solid var(--border);padding:8px;border-radius:50px;font-size:.8rem;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:6px;transition:all .2s}
+        .btn-reset:hover{border-color:var(--text);color:var(--text)}
+
+        /* SHOP MAIN */
+        .shop-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px}
+        .results-count{font-size:.9rem;color:var(--muted)}
+        .results-count strong{color:var(--text);font-weight:700}
+        .sort-select{border:1.5px solid var(--border);border-radius:50px;padding:7px 14px;font-size:.85rem;background:#fff;color:var(--text);outline:none;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+        /* ACTIVE FILTERS */
+        .active-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+        .filter-tag{background:var(--green-light);color:var(--green-dark);font-size:.75rem;font-weight:600;padding:4px 12px;border-radius:20px;display:flex;align-items:center;gap:5px}
+        .filter-tag a{color:var(--green-dark);text-decoration:none;font-size:.8rem}
+
+        /* ITEMS GRID */
+        .items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:16px}
+        .item-card{background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .25s,transform .25s;position:relative;text-decoration:none;color:inherit;display:block}
+        .item-card:hover{box-shadow:var(--shadow-h);transform:translateY(-4px);color:inherit}
+        .item-card-img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;background:#f0f0f0}
+        .item-card-ph{width:100%;aspect-ratio:3/4;background:linear-gradient(135deg,#f0faf4,#d4eedd);display:flex;align-items:center;justify-content:center;font-size:3.5rem}
+        .item-media{position:relative;overflow:hidden}
+        .sold-overlay{position:absolute;inset:0;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;z-index:3;pointer-events:none}
+        .sold-overlay span{background:rgba(220,38,38,.94);color:#fff;border:4px solid #fff;border-radius:12px;padding:10px 22px;font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;transform:rotate(-14deg);box-shadow:0 14px 34px rgba(127,29,29,.32)}
+        .item-card.sold .item-card-img{filter:saturate(.55) grayscale(.2)}
+        .item-card-body{padding:10px 12px 14px}
+        .item-price{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--green)}
+        .item-title{font-size:.82rem;color:var(--text);margin:3px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+        .item-meta{font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:6px;margin-top:2px}
+        .like-btn{position:absolute;top:9px;right:9px;background:rgba(255,255,255,.92);border:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;cursor:pointer;color:#ccc;transition:color .2s;box-shadow:0 1px 4px rgba(0,0,0,.1);z-index:2}
+        .like-btn:hover{color:#e83e6c}
+        .etat-badge{position:absolute;top:9px;left:9px;background:var(--green);color:#fff;font-size:.68rem;font-weight:700;padding:3px 8px;border-radius:20px;font-family:'Syne',sans-serif}
+        .empty-state{text-align:center;padding:4rem 2rem;color:var(--muted)}
+        .empty-state i{font-size:3rem;margin-bottom:1rem;display:block;opacity:.4}
+    </style>
+</head>
+<body>
+<nav class="tb-nav">
+    <a href="/boutique" class="brand">ThriftBy</a>
+    <form class="tb-search" action="/boutique/shop" method="get">
+        <i class="bi bi-search"></i>
+        <input type="text" name="q" th:value="${q}" placeholder="Rechercher articles, marques…">
+    </form>
+    <div class="nav-actions">
+        <a href="/boutique/shop" class="nav-lk" style="color:var(--green)"><i class="bi bi-grid"></i> Catalogue</a>
+        <a href="/panier"        class="nav-lk"><i class="bi bi-bag"></i> Panier</a>
+        <a href="/profil"        class="nav-lk"><i class="bi bi-person"></i> Profil</a>
+        <form th:action="@{/logout}" method="post" style="display:inline; margin:0">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="nav-lk" style="background:none; border:none; cursor:pointer; padding:7px 12px">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </form>
+        <a href="/vendeur/publier" class="btn-sell"><i class="bi bi-plus-lg"></i> Vendre</a>
+    </div>
+</nav>
+
+<div class="shop-layout">
+
+    <!-- SIDEBAR FILTERS -->
+    <aside class="filters">
+        <form action="/boutique/shop" method="get" id="filterForm">
+            <input type="hidden" name="q" th:value="${q}">
+
+            <p class="filter-title"><i class="bi bi-funnel"></i> Catégorie</p>
+            <div class="filter-opt">
+                <input type="radio" name="categorieId" value="" id="cat-all"
+                       th:checked="${categorieId == null}">
+                <label for="cat-all">Toutes</label>
+            </div>
+            <div th:each="cat : ${categories}" class="filter-opt">
+                <input type="radio" name="categorieId"
+                       th:value="${cat.id}"
+                       th:id="'cat-'+${cat.id}"
+                       th:checked="${categorieId == cat.id}">
+                <label th:for="'cat-'+${cat.id}">
+                    <span th:text="${cat.icone}"></span>
+                    <span th:text="${cat.nom}"></span>
+                </label>
+            </div>
+
+            <p class="filter-title"><i class="bi bi-rulers"></i> Taille</p>
+            <div th:each="t : ${tailles}" class="filter-opt">
+                <input type="checkbox" name="taille"
+                       th:value="${t.name()}"
+                       th:id="'t-'+${t.name()}"
+                       th:checked="${taille == t.name()}">
+                <label th:for="'t-'+${t.name()}" th:text="${t.name()}"></label>
+            </div>
+
+            <p class="filter-title"><i class="bi bi-stars"></i> État</p>
+            <div th:each="e : ${etats}" class="filter-opt">
+                <input type="checkbox" name="etat"
+                       th:value="${e.name()}"
+                       th:id="'e-'+${e.name()}"
+                       th:checked="${etat == e.name()}">
+                <label th:for="'e-'+${e.name()}" th:text="${e.libelle}"></label>
+            </div>
+
+            <p class="filter-title"><i class="bi bi-palette"></i> Style</p>
+            <div th:each="s : ${styles}" class="filter-opt">
+                <input type="checkbox" name="style"
+                       th:value="${s.name()}"
+                       th:id="'s-'+${s.name()}"
+                       th:checked="${style == s.name()}">
+                <label th:for="'s-'+${s.name()}" th:text="${s.libelle}"></label>
+            </div>
+
+            <p class="filter-title"><i class="bi bi-cash"></i> Prix (DT)</p>
+            <div class="price-row">
+                <input class="price-input" type="number" name="prixMin" placeholder="Min"
+                       th:value="${prixMin}" min="0">
+                <span style="color:var(--muted);font-size:.9rem">–</span>
+                <input class="price-input" type="number" name="prixMax" placeholder="Max"
+                       th:value="${prixMax}" min="0">
+            </div>
+
+            <button type="submit" class="btn-filter"><i class="bi bi-check2"></i> Appliquer</button>
+            <a href="/boutique/shop" class="btn-reset">Réinitialiser</a>
+        </form>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <div class="shop-top">
+            <p class="results-count">
+                <strong th:text="${nbResultats}">0</strong> articles trouvés
+                <span th:if="${q != null and !q.isEmpty()}"> pour « <em th:text="${q}"></em> »</span>
+            </p>
+            <select class="sort-select" onchange="window.location=this.value">
+                <option value="/boutique/shop">Nouveautés d'abord</option>
+                <option value="/boutique/shop?sort=prix_asc">Prix croissant</option>
+                <option value="/boutique/shop?sort=prix_desc">Prix décroissant</option>
+                <option value="/boutique/shop?sort=likes">Plus aimés</option>
+            </select>
+        </div>
+
+        <!-- ITEMS -->
+        <div class="items-grid" th:if="${!#lists.isEmpty(items)}">
+            <div th:each="item : ${items}" th:class="'item-card' + (${item.statut?.name() == 'VENDU'} ? ' sold' : '')">
+                <a th:href="@{/boutique/article/{id}(id=${item.id})}" class="item-card-link">
+                    <div class="item-media">
+                        <img th:src="${item.photoUrl != null ? item.photoUrl : (item.photos != null and !#lists.isEmpty(item.photos) ? item.photos.get(0).photoUrl : 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=600&q=80')}"
+                             th:alt="${item.titre}"
+                             class="item-card-img">
+                        <span class="etat-badge" th:text="${item.etat?.libelle}"></span>
+                        <div class="sold-overlay" th:if="${item.statut?.name() == 'VENDU'}"><span>Vendu</span></div>
+                    </div>
+                    <div class="item-card-body">
+                        <div class="item-price" th:text="${item.prix + ' DT'}">0 DT</div>
+                        <div class="item-title" th:text="${item.titre}">Titre</div>
+                        <div class="item-meta">
+                            <span th:text="${item.taille}">M</span> ·
+                            <span th:text="${item.categorie?.nom}">Cat</span>
+                            <span style="margin-left:auto">
+                                <i class="bi bi-heart"></i> <span th:text="${item.nbLikes}">0</span>
+                            </span>
+                        </div>
+                        <div style="margin-top:6px;font-size:.78rem;color:var(--muted)">
+                            <span th:if="${item.vendeur != null}">
+                                <span th:text="${item.vendeur.id == currentUser?.id ? 'Publié par moi' : 'Publié par ' + item.vendeur.prenom + ' ' + item.vendeur.nom}"></span>
+                            </span>
+                            <span th:if="${item.vendeur == null}">Vendeur inconnu</span>
+                        </div>
+                    </div>
+                </a>
+                <button class="like-btn" onclick="event.preventDefault()">
+                    <i class="bi bi-heart"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="empty-state" th:if="${#lists.isEmpty(items)}">
+            <i class="bi bi-search"></i>
+            <h3 style="font-family:'Syne',sans-serif;margin-bottom:.5rem">Aucun article trouvé</h3>
+            <p style="font-size:.9rem">Essayez d'autres filtres ou revenez plus tard.</p>
+            <a href="/boutique/shop" style="color:var(--green);font-weight:600;text-decoration:none;margin-top:1rem;display:inline-block">Voir tous les articles →</a>
+        </div>
+    </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

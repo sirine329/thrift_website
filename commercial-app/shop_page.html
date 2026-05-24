@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalogue – ThriftBy</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root{--green:#1DB954;--green-dark:#159040;--green-light:#E8F8EE;--green-mid:#C3EDD4;--text:#1A1A1A;--muted:#6B7280;--border:#E5E7EB;--bg:#F9FAFB;--white:#FFFFFF;--radius:14px;--shadow:0 2px 12px rgba(0,0,0,.07);--shadow-h:0 8px 32px rgba(0,0,0,.13)}
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text)}
+        h1,h2,h3,.syne{font-family:'Syne',sans-serif}
+        .tb-nav{background:#fff;border-bottom:1px solid var(--border);padding:0 2rem;height:62px;display:flex;align-items:center;position:sticky;top:0;z-index:200;box-shadow:0 1px 8px rgba(0,0,0,.05)}
+        .brand{font-size:1.5rem;font-weight:800;color:var(--green);text-decoration:none;margin-right:2rem;letter-spacing:-1px;font-family:'Syne',sans-serif}
+        .tb-search{flex:1;max-width:440px;position:relative}
+        .tb-search input{width:100%;border:1.5px solid var(--border);border-radius:50px;padding:9px 18px 9px 42px;font-size:.875rem;background:var(--bg);outline:none;font-family:'DM Sans',sans-serif;transition:border .2s}
+        .tb-search input:focus{border-color:var(--green)}
+        .tb-search i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted)}
+        .nav-actions{display:flex;align-items:center;gap:6px;margin-left:auto}
+        .nav-lk{color:var(--muted);text-decoration:none;font-size:.875rem;font-weight:500;padding:7px 12px;border-radius:8px;display:flex;align-items:center;gap:5px;transition:all .2s}
+        .nav-lk:hover{background:var(--bg);color:var(--text)}
+        .btn-sell{background:var(--green);color:#fff;border:none;padding:9px 20px;border-radius:50px;font-size:.875rem;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:6px;font-family:'Syne',sans-serif;transition:background .2s}
+        .btn-sell:hover{background:var(--green-dark);color:#fff}
+
+        /* LAYOUT */
+        .shop-layout{display:grid;grid-template-columns:220px 1fr;gap:24px;max-width:1200px;margin:0 auto;padding:1.5rem 1.5rem 4rem}
+
+        /* FILTERS SIDEBAR */
+        .filters{background:#fff;border-radius:var(--radius);border:1px solid var(--border);padding:1.25rem;position:sticky;top:80px;height:fit-content}
+        .filter-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.7rem;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:1.25rem 0 .6rem;display:flex;align-items:center;gap:6px}
+        .filter-title:first-child{margin-top:0}
+        .filter-opt{display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer}
+        .filter-opt input[type=checkbox]{accent-color:var(--green);width:15px;height:15px;cursor:pointer}
+        .filter-opt label{font-size:.85rem;cursor:pointer;color:var(--text)}
+        .price-row{display:flex;gap:6px;align-items:center}
+        .price-input{flex:1;border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:.82rem;font-family:'DM Sans',sans-serif;outline:none;transition:border .2s}
+        .price-input:focus{border-color:var(--green)}
+        .btn-filter{width:100%;background:var(--green);color:#fff;border:none;padding:10px;border-radius:50px;font-weight:700;font-size:.875rem;font-family:'Syne',sans-serif;cursor:pointer;margin-top:1rem;transition:background .2s}
+        .btn-filter:hover{background:var(--green-dark)}
+        .btn-reset{width:100%;background:transparent;color:var(--muted);border:1px solid var(--border);padding:8px;border-radius:50px;font-size:.8rem;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:6px;transition:all .2s}
+        .btn-reset:hover{border-color:var(--text);color:var(--text)}
+
+        /* SHOP MAIN */
+        .shop-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px}
+        .results-count{font-size:.9rem;color:var(--muted)}
+        .results-count strong{color:var(--text);font-weight:700}
+        .sort-select{border:1.5px solid var(--border);border-radius:50px;padding:7px 14px;font-size:.85rem;background:#fff;color:var(--text);outline:none;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+        /* ACTIVE FILTERS */
+        .active-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+        .filter-tag{background:var(--green-light);color:var(--green-dark);font-size:.75rem;font-weight:600;padding:4px 12px;border-radius:20px;display:flex;align-items:center;gap:5px}
+        .filter-tag a{color:var(--green-dark);text-decoration:none;font-size:.8rem}
+
+        /* ITEMS GRID */
+        .items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:16px}
+        .item-card{background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .25s,transform .25s;position:relative;text-decoration:none;color:inherit;display:block}
+        .item-card:hover{box-shadow:var(--shadow-h);transform:translateY(-4px);color:inherit}
+        .item-card-img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;background:#f0f0f0}
+        .item-card-ph{width:100%;aspect-ratio:3/4;background:linear-gradient(135deg,#f0faf4,#d4eedd);display:flex;align-items:center;justify-content:center;font-size:3.5rem}
+        .item-card-body{padding:10px 12px 14px}
+        .item-price{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--green)}
+        .item-title{font-size:.82rem;color:var(--text);margin:3px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+        .item-meta{font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:6px;margin-top:2px}
+        .like-btn{position:absolute;top:9px;right:9px;background:rgba(255,255,255,.92);border:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;cursor:pointer;color:#ccc;transition:color .2s;box-shadow:0 1px 4px rgba(0,0,0,.1);z-index:2}
+        .like-btn:hover{color:#e83e6c}
+        .etat-badge{position:absolute;top:9px;left:9px;background:var(--green);color:#fff;font-size:.68rem;font-weight:700;padding:3px 8px;border-radius:20px;font-family:'Syne',sans-serif}
+        .empty-state{text-align:center;padding:4rem 2rem;color:var(--muted)}
+        .empty-state i{font-size:3rem;margin-bottom:1rem;display:block;opacity:.4}
+    </style>
+</head>
+<body>
+<nav class="tb-nav">
+    <a href="/boutique" class="brand">ThriftBy</a>
+    <form class="tb-search" action="/boutique/shop" method="get">
+        <i class="bi bi-search"></i>
+        <input type="text" name="q" value="" placeholder="Rechercher articles, marques…">
+    </form>
+    <div class="nav-actions">
+        <a href="/boutique/shop" class="nav-lk" style="color:var(--green)"><i class="bi bi-grid"></i> Catalogue</a>
+        <a href="/panier"        class="nav-lk"><i class="bi bi-bag"></i> Panier</a>
+        <a href="/profil"        class="nav-lk"><i class="bi bi-person"></i> Profil</a>
+        <form action="/logout" method="post" style="display:inline; margin:0"><input type="hidden" name="_csrf" value="1VESRYt-1Ugu9o4YhSgMmAbb6P65nPzhr93R5WnOcHOSVSLu5mR3dbJG5y0Dz7cs4AU4rjLqxZzb-crMnOXngVj8QkWgYkGP"/>
+            <input type="hidden" name="_csrf" value="1VESRYt-1Ugu9o4YhSgMmAbb6P65nPzhr93R5WnOcHOSVSLu5mR3dbJG5y0Dz7cs4AU4rjLqxZzb-crMnOXngVj8QkWgYkGP"/>
+            <button type="submit" class="nav-lk" style="background:none; border:none; cursor:pointer; padding:7px 12px">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </form>
+        <a href="/vendeur/publier" class="btn-sell"><i class="bi bi-plus-lg"></i> Vendre</a>
+    </div>
+</nav>
+
+<div class="shop-layout">
+
+    <!-- SIDEBAR FILTERS -->
+    <aside class="filters">
+        <form action="/boutique/shop" method="get" id="filterForm">
+            <input type="hidden" name="q" value="">
+
+            <p class="filter-title"><i class="bi bi-funnel"></i> Catégorie</p>
+            <div class="filter-opt">
+                <input type="radio" name="categorieId" value="" id="cat-all" checked="checked">
+                <label for="cat-all">Toutes</label>
+            </div>
+            <div class="filter-opt">
+                <input type="radio" name="categorieId"
+                       value="1"
+                       id="cat-1">
+                <label for="cat-1">
+                    <span>👕</span>
+                    <span>Hauts</span>
+                </label>
+            </div>
+            <div class="filter-opt">
+                <input type="radio" name="categorieId"
+                       value="2"
+                       id="cat-2">
+                <label for="cat-2">
+                    <span>👖</span>
+                    <span>Bas</span>
+                </label>
+            </div>
+            <div class="filter-opt">
+                <input type="radio" name="categorieId"
+                       value="3"
+                       id="cat-3">
+                <label for="cat-3">
+                    <span>👗</span>
+                    <span>Robes</span>
+                </label>
+            </div>
+            <div class="filter-opt">
+                <input type="radio" name="categorieId"
+                       value="4"
+                       id="cat-4">
+                <label for="cat-4">
+                    <span>🧥</span>
+                    <span>Manteaux &amp; Vestes</span>
+                </label>
+            </div>
+            <div class="filter-opt">
+                <input type="radio" name="categorieId"
+                       value="5"
+                       id="cat-5">
+                <label for="cat-5">
+                    <span>👟</span>
+                    <span>Chaussures</span>
+                </label>
+            </div>
+            <div class="filter-opt">
+                <input type="radio" name="categorieId"
+                       value="6"
+                       id="cat-6">
+                <label for="cat-6">
+                    <span>👜</span>
+                    <span>Accessoires</span>
+                </label>
+            </div>
+
+            <p class="filter-title"><i class="bi bi-rulers"></i> Taille</p>
+            <div class="filter-opt">
+                <input type="checkbox" name="taille"
+                       value="XS"
+                       id="t-XS">
+                <label for="t-XS">XS</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="taille"
+                       value="S"
+                       id="t-S">
+                <label for="t-S">S</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="taille"
+                       value="M"
+                       id="t-M">
+                <label for="t-M">M</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="taille"
+                       value="L"
+                       id="t-L">
+                <label for="t-L">L</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="taille"
+                       value="XL"
+                       id="t-XL">
+                <label for="t-XL">XL</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="taille"
+                       value="XXL"
+                       id="t-XXL">
+                <label for="t-XXL">XXL</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="taille"
+                       value="UNIQUE"
+                       id="t-UNIQUE">
+                <label for="t-UNIQUE">UNIQUE</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="taille"
+                       value="T36"
+                       id="t-T36">
+                <label for="t-T36">T36</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="taille"
+                       value="T37"
+                       id="t-T37">
+                <label for="t-T37">T37</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="taille"
+                       value="T38"
+                       id="t-T38">
+                <label for="t-T38">T38</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="taille"
+                       value="T39"
+                       id="t-T39">
+                <label for="t-T39">T39</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="taille"
+                       value="T40"
+                       id="t-T40">
+                <label for="t-T40">T40</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="taille"
+                       value="T41"
+                       id="t-T41">
+                <label for="t-T41">T41</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="taille"
+                       value="T42"
+                       id="t-T42">
+                <label for="t-T42">T42</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="taille"
+                       value="T43"
+                       id="t-T43">
+                <label for="t-T43">T43</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="taille"
+                       value="T44"
+                       id="t-T44">
+                <label for="t-T44">T44</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="taille"
+                       value="T45"
+                       id="t-T45">
+                <label for="t-T45">T45</label>
+            </div>
+
+            <p class="filter-title"><i class="bi bi-stars"></i> État</p>
+            <div class="filter-opt">
+                <input type="checkbox" name="etat"
+                       value="NEUF"
+                       id="e-NEUF">
+                <label for="e-NEUF">Neuf avec étiquette</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="etat"
+                       value="COMME_NEUF"
+                       id="e-COMME_NEUF">
+                <label for="e-COMME_NEUF">Comme neuf</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="etat"
+                       value="BON"
+                       id="e-BON">
+                <label for="e-BON">Bon état</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="etat"
+                       value="ACCEPTABLE"
+                       id="e-ACCEPTABLE">
+                <label for="e-ACCEPTABLE">État acceptable</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="etat"
+                       value="USAGE"
+                       id="e-USAGE">
+                <label for="e-USAGE">Très usagé</label>
+            </div>
+
+            <p class="filter-title"><i class="bi bi-palette"></i> Style</p>
+            <div class="filter-opt">
+                <input type="checkbox" name="style"
+                       value="CASUAL"
+                       id="s-CASUAL">
+                <label for="s-CASUAL">Casual</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="style"
+                       value="VINTAGE"
+                       id="s-VINTAGE">
+                <label for="s-VINTAGE">Vintage</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="style"
+                       value="STREETWEAR"
+                       id="s-STREETWEAR">
+                <label for="s-STREETWEAR">Streetwear</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="style"
+                       value="FORMEL"
+                       id="s-FORMEL">
+                <label for="s-FORMEL">Formel</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="style"
+                       value="SPORT"
+                       id="s-SPORT">
+                <label for="s-SPORT">Sport</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="style"
+                       value="BOHEME"
+                       id="s-BOHEME">
+                <label for="s-BOHEME">Bohème</label>
+            </div>
+            <div class="filter-opt">
+                <input type="checkbox" name="style"
+                       value="CHIC"
+                       id="s-CHIC">
+                <label for="s-CHIC">Chic</label>
+            </div>
+
+            <p class="filter-title"><i class="bi bi-cash"></i> Prix (DT)</p>
+            <div class="price-row">
+                <input class="price-input" type="number" name="prixMin" placeholder="Min"
+                       value="" min="0">
+                <span style="color:var(--muted);font-size:.9rem">–</span>
+                <input class="price-input" type="number" name="prixMax" placeholder="Max"
+                       value="" min="0">
+            </div>
+
+            <button type="submit" class="btn-filter"><i class="bi bi-check2"></i> Appliquer</button>
+            <a href="/boutique/shop" class="btn-reset">Réinitialiser</a>
+        </form>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <div class="shop-top">
+            <p class="results-count">
+                <strong>9</strong> articles trouvés
+                
+            </p>
+            <select class="sort-select" onchange="window.location=this.value">
+                <option value="/boutique/shop">Nouveautés d'abord</option>
+                <option value="/boutique/shop?sort=prix_asc">Prix croissant</option>
+                <option value="/boutique/shop?sort=prix_desc">Prix décroissant</option>
+                <option value="/boutique/shop?sort=likes">Plus aimés</option>
+            </select>
+        </div>
+
+        <!-- ITEMS -->
+        <div class="items-grid">
+            <a href="/boutique/article/9"
+               class="item-card">
+                <img src="/uploads/6795151d-3a6b-42a3-83ad-e77705faa604.jpg"
+                     alt="robe chic "
+                     class="item-card-img">
+                <span class="etat-badge">Neuf avec étiquette</span>
+                <button class="like-btn" onclick="event.preventDefault()">
+                    <i class="bi bi-heart"></i>
+                </button>
+                <div class="item-card-body">
+                    <div class="item-price">60.00 DT</div>
+                    <div class="item-title">robe chic </div>
+                    <div class="item-meta">
+                        <span>S</span> ·
+                        <span>Robes</span>
+                        <span style="margin-left:auto">
+                            <i class="bi bi-heart"></i> <span>0</span>
+                        </span>
+                    </div>
+                </div>
+            </a><a href="/boutique/article/8"
+               class="item-card">
+                <img src="/uploads/5cd4504c-ecf9-4121-8336-8fb7b06988bc.jpg"
+                     alt="trendy"
+                     class="item-card-img">
+                <span class="etat-badge">Bon état</span>
+                <button class="like-btn" onclick="event.preventDefault()">
+                    <i class="bi bi-heart"></i>
+                </button>
+                <div class="item-card-body">
+                    <div class="item-price">20.00 DT</div>
+                    <div class="item-title">trendy</div>
+                    <div class="item-meta">
+                        <span>M</span> ·
+                        <span>Robes</span>
+                        <span style="margin-left:auto">
+                            <i class="bi bi-heart"></i> <span>0</span>
+                        </span>
+                    </div>
+                </div>
+            </a><a href="/boutique/article/7"
+               class="item-card">
+                <img src="/uploads/9cc32687-5a4d-45d7-8296-8d35d8a14f13.jpg"
+                     alt="robe "
+                     class="item-card-img">
+                <span class="etat-badge">Comme neuf</span>
+                <button class="like-btn" onclick="event.preventDefault()">
+                    <i class="bi bi-heart"></i>
+                </button>
+                <div class="item-card-body">
+                    <div class="item-price">30.00 DT</div>
+                    <div class="item-title">robe </div>
+                    <div class="item-meta">
+                        <span>T38</span> ·
+                        <span>Robes</span>
+                        <span style="margin-left:auto">
+                            <i class="bi bi-heart"></i> <span>0</span>
+                        </span>
+                    </div>
+                </div>
+            </a><a href="/boutique/article/6"
+               class="item-card">
+                <img src="/uploads/dc1544ff-079e-486c-a2c6-daafba95af67.jpg"
+                     alt="robe butter yellow 😍"
+                     class="item-card-img">
+                <span class="etat-badge">Neuf avec étiquette</span>
+                <button class="like-btn" onclick="event.preventDefault()">
+                    <i class="bi bi-heart"></i>
+                </button>
+                <div class="item-card-body">
+                    <div class="item-price">50.00 DT</div>
+                    <div class="item-title">robe butter yellow 😍</div>
+                    <div class="item-meta">
+                        <span>T36</span> ·
+                        <span>Robes</span>
+                        <span style="margin-left:auto">
+                            <i class="bi bi-heart"></i> <span>0</span>
+                        </span>
+                    </div>
+                </div>
+            </a><a href="/boutique/article/5"
+               class="item-card">
+                <img src="/uploads/be1e382b-0974-495f-bdbf-b5c247d9257c.jpg"
+                     alt="robe butter yellow 😍"
+                     class="item-card-img">
+                <span class="etat-badge">Neuf avec étiquette</span>
+                <button class="like-btn" onclick="event.preventDefault()">
+                    <i class="bi bi-heart"></i>
+                </button>
+                <div class="item-card-body">
+                    <div class="item-price">50.00 DT</div>
+                    <div class="item-title">robe butter yellow 😍</div>
+                    <div class="item-meta">
+                        <span>T36</span> ·
+                        <span>Robes</span>
+                        <span style="margin-left:auto">
+                            <i class="bi bi-heart"></i> <span>0</span>
+                        </span>
+                    </div>
+                </div>
+            </a><a href="/boutique/article/1"
+               class="item-card">
+                <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&amp;fit=crop&amp;w=600&amp;q=80"
+                     alt="Manteau en laine vintage"
+                     class="item-card-img">
+                <span class="etat-badge">Bon état</span>
+                <button class="like-btn" onclick="event.preventDefault()">
+                    <i class="bi bi-heart"></i>
+                </button>
+                <div class="item-card-body">
+                    <div class="item-price">29.00 DT</div>
+                    <div class="item-title">Manteau en laine vintage</div>
+                    <div class="item-meta">
+                        <span>M</span> ·
+                        <span>Manteaux &amp; Vestes</span>
+                        <span style="margin-left:auto">
+                            <i class="bi bi-heart"></i> <span>42</span>
+                        </span>
+                    </div>
+                </div>
+            </a><a href="/boutique/article/2"
+               class="item-card">
+                <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&amp;fit=crop&amp;w=600&amp;q=80"
+                     alt="Pull en cachemire crème"
+                     class="item-card-img">
+                <span class="etat-badge">Comme neuf</span>
+                <button class="like-btn" onclick="event.preventDefault()">
+                    <i class="bi bi-heart"></i>
+                </button>
+                <div class="item-card-body">
+                    <div class="item-price">22.00 DT</div>
+                    <div class="item-title">Pull en cachemire crème</div>
+                    <div class="item-meta">
+                        <span>UNIQUE</span> ·
+                        <span>Hauts</span>
+                        <span style="margin-left:auto">
+                            <i class="bi bi-heart"></i> <span>28</span>
+                        </span>
+                    </div>
+                </div>
+            </a><a href="/boutique/article/3"
+               class="item-card">
+                <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&amp;fit=crop&amp;w=600&amp;q=80"
+                     alt="Sneakers Adidas Stan Smith"
+                     class="item-card-img">
+                <span class="etat-badge">Bon état</span>
+                <button class="like-btn" onclick="event.preventDefault()">
+                    <i class="bi bi-heart"></i>
+                </button>
+                <div class="item-card-body">
+                    <div class="item-price">45.00 DT</div>
+                    <div class="item-title">Sneakers Adidas Stan Smith</div>
+                    <div class="item-meta">
+                        <span>T40</span> ·
+                        <span>Chaussures</span>
+                        <span style="margin-left:auto">
+                            <i class="bi bi-heart"></i> <span>67</span>
+                        </span>
+                    </div>
+                </div>
+            </a><a href="/boutique/article/4"
+               class="item-card">
+                <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&amp;fit=crop&amp;w=600&amp;q=80"
+                     alt="Robe fleurie printemps"
+                     class="item-card-img">
+                <span class="etat-badge">Comme neuf</span>
+                <button class="like-btn" onclick="event.preventDefault()">
+                    <i class="bi bi-heart"></i>
+                </button>
+                <div class="item-card-body">
+                    <div class="item-price">18.00 DT</div>
+                    <div class="item-title">Robe fleurie printemps</div>
+                    <div class="item-meta">
+                        <span>S</span> ·
+                        <span>Robes</span>
+                        <span style="margin-left:auto">
+                            <i class="bi bi-heart"></i> <span>53</span>
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        
+    </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

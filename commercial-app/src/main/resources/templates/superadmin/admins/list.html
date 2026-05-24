@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Admins')}"></head>
+<body>
+<div class="d-flex">
+    <div th:replace="~{fragments/layout :: sidebar('admins')}"></div>
+    <div class="main-content flex-grow-1">
+        <div th:replace="~{fragments/layout :: topbar('Gestion des Administrateurs')}"></div>
+        <div class="page-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="row g-4">
+                <!-- FORM ADD ADMIN -->
+                <div class="col-lg-4">
+                    <div class="form-card border-danger" style="border-top: 3px solid #dc2626 !important;">
+                        <h6 class="fw-700 mb-3">
+                            <i class="bi bi-shield-plus me-2 text-danger"></i>
+                            Créer un Administrateur
+                        </h6>
+                        <form th:action="@{/superadmin/admins/save}"
+                              th:object="${newAdmin}" method="post" novalidate>
+                            <div class="mb-3">
+                                <label class="form-label">Prénom *</label>
+                                <input type="text" th:field="*{prenom}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('prenom') ? 'is-invalid' : ''}"
+                                       placeholder="Prénom"/>
+                                <div class="invalid-feedback" th:errors="*{prenom}"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nom *</label>
+                                <input type="text" th:field="*{nom}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('nom') ? 'is-invalid' : ''}"
+                                       placeholder="Nom de famille"/>
+                                <div class="invalid-feedback" th:errors="*{nom}"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email *</label>
+                                <input type="email" th:field="*{email}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('email') ? 'is-invalid' : ''}"
+                                       placeholder="admin@example.com"/>
+                                <div class="invalid-feedback" th:errors="*{email}"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Téléphone</label>
+                                <input type="text" th:field="*{telephone}" class="form-control"
+                                       placeholder="XX XXX XXX"/>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Mot de passe *</label>
+                                <input type="password" th:field="*{password}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('password') ? 'is-invalid' : ''}"
+                                       placeholder="Minimum 6 caractères"/>
+                                <div class="invalid-feedback" th:errors="*{password}"></div>
+                            </div>
+                            <button type="submit" class="btn btn-danger w-100">
+                                <i class="bi bi-shield-plus me-2"></i>Créer l'admin
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- LIST ADMINS -->
+                <div class="col-lg-8">
+                    <div class="table-card">
+                        <div class="px-4 py-3 border-bottom d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 fw-700">
+                                <i class="bi bi-shield-check me-2 text-danger"></i>
+                                Administrateurs
+                                <span class="badge bg-danger ms-2" th:text="${admins.size()}"></span>
+                            </h6>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Administrateur</th>
+                                        <th>Email</th>
+                                        <th>Téléphone</th>
+                                        <th>Créé le</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:if="${admins.empty}">
+                                        <td colspan="7" class="text-center py-5 text-muted">
+                                            <i class="bi bi-shield fs-1 d-block mb-2 opacity-25"></i>
+                                            Aucun administrateur trouvé
+                                        </td>
+                                    </tr>
+                                    <tr th:each="a, iter : ${admins}">
+                                        <td class="text-muted small" th:text="${iter.index + 1}"></td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div style="width:36px;height:36px;border-radius:50%;background:#fee2e2;color:#dc2626;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;">
+                                                    <span th:text="${#strings.substring(a.prenom,0,1)}"></span>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-600" th:text="${a.nomComplet}"></div>
+                                                    <span class="badge bg-danger" style="font-size:.65rem;">ADMIN</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="small" th:text="${a.email}">-</td>
+                                        <td class="small" th:text="${a.telephone}">-</td>
+                                        <td class="text-muted small"
+                                            th:text="${a.createdAt != null ? #temporals.format(a.createdAt, 'dd/MM/yyyy') : '-'}">-</td>
+                                        <td>
+                                            <span th:class="${a.actif ? 'badge badge-actif' : 'badge badge-inactif'} + ' rounded-pill'"
+                                                  th:text="${a.actif ? 'Actif' : 'Inactif'}"></span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <a th:href="@{/superadmin/admins/edit/{id}(id=${a.id})}"
+                                                   class="btn btn-sm btn-outline-primary" title="Modifier">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <a th:href="@{/superadmin/admins/toggle/{id}(id=${a.id})}"
+                                                   class="btn btn-sm"
+                                                   th:class="${a.actif ? 'btn btn-sm btn-outline-warning' : 'btn btn-sm btn-outline-success'}"
+                                                   th:title="${a.actif ? 'Désactiver' : 'Activer'}">
+                                                    <i th:class="${a.actif ? 'bi bi-person-x' : 'bi bi-person-check'}"></i>
+                                                </a>
+                                                <a th:href="@{/superadmin/admins/delete/{id}(id=${a.id})}"
+                                                   class="btn btn-sm btn-outline-danger" title="Supprimer"
+                                                   onclick="return confirm('Supprimer cet administrateur ?')">
+                                                    <i class="bi bi-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

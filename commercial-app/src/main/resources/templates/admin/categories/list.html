@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Catégories')}"></head>
+<body>
+<div class="d-flex">
+    <div th:replace="~{fragments/layout :: sidebar('categories')}"></div>
+    <div class="main-content flex-grow-1">
+        <div th:replace="~{fragments/layout :: topbar('Gestion des Catégories')}"></div>
+        <div class="page-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="row g-4">
+                <!-- FORM ADD -->
+                <div class="col-lg-4">
+                    <div class="form-card">
+                        <h6 class="fw-700 mb-3">
+                            <i class="bi bi-plus-circle me-2 text-primary"></i>
+                            Nouvelle Catégorie
+                        </h6>
+                        <form th:action="@{/admin/categories/save}"
+                              th:object="${newCategorie}" method="post">
+                            <div class="mb-3">
+                                <label class="form-label">Nom *</label>
+                                <input type="text" th:field="*{nom}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('nom') ? 'is-invalid' : ''}"
+                                       placeholder="Nom de la catégorie"/>
+                                <div class="invalid-feedback" th:errors="*{nom}"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea th:field="*{description}" class="form-control" rows="3"
+                                          placeholder="Description..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-plus-lg me-2"></i>Ajouter
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- LIST -->
+                <div class="col-lg-8">
+                    <div class="table-card">
+                        <div class="px-4 py-3 border-bottom">
+                            <h6 class="mb-0 fw-700">Liste des Catégories</h6>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Nom</th>
+                                        <th>Description</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:if="${categories.empty}">
+                                        <td colspan="5" class="text-center py-4 text-muted">Aucune catégorie</td>
+                                    </tr>
+                                    <tr th:each="c, iter : ${categories}">
+                                        <td class="text-muted small" th:text="${iter.index + 1}"></td>
+                                        <td>
+                                            <span class="fw-600" th:text="${c.nom}"></span>
+                                        </td>
+                                        <td class="text-muted small"
+                                            th:text="${c.description != null ? #strings.abbreviate(c.description, 50) : '-'}"></td>
+                                        <td>
+                                            <span th:class="${c.actif ? 'badge badge-actif' : 'badge badge-inactif'} + ' rounded-pill'"
+                                                  th:text="${c.actif ? 'Active' : 'Inactive'}"></span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <a th:href="@{/admin/categories/edit/{id}(id=${c.id})}"
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <a th:href="@{/admin/categories/delete/{id}(id=${c.id})}"
+                                                   class="btn btn-sm btn-outline-danger"
+                                                   onclick="return confirm('Supprimer cette catégorie ?')">
+                                                    <i class="bi bi-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
