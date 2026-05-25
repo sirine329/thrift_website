@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catalogue – ThriftBy</title>
@@ -81,16 +81,25 @@
         <input type="text" name="q" th:value="${q}" placeholder="Rechercher articles, marques…">
     </form>
     <div class="nav-actions">
-        <a href="/boutique/shop" class="nav-lk" style="color:var(--green)"><i class="bi bi-grid"></i> Catalogue</a>
-        <a href="/panier"        class="nav-lk"><i class="bi bi-bag"></i> Panier</a>
-        <a href="/profil"        class="nav-lk"><i class="bi bi-person"></i> Profil</a>
-        <form th:action="@{/logout}" method="post" style="display:inline; margin:0">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-            <button type="submit" class="nav-lk" style="background:none; border:none; cursor:pointer; padding:7px 12px">
-                <i class="bi bi-box-arrow-right"></i>
-            </button>
-        </form>
-        <a href="/vendeur/publier" class="btn-sell"><i class="bi bi-plus-lg"></i> Vendre</a>
+        <!-- Pour les visiteurs non authentifiés -->
+        <div sec:authorize="isAnonymous()">
+            <a href="/boutique/shop" class="nav-lk" style="color:var(--green)"><i class="bi bi-grid"></i> Catalogue</a>
+            <a href="/login" class="nav-lk"><i class="bi bi-box-arrow-in-right"></i> Sign In</a>
+        </div>
+        
+        <!-- Pour les utilisateurs authentifiés -->
+        <div sec:authorize="isAuthenticated()">
+            <a href="/boutique/shop" class="nav-lk" style="color:var(--green)"><i class="bi bi-grid"></i> Catalogue</a>
+            <a href="/panier"        class="nav-lk"><i class="bi bi-bag"></i> Panier</a>
+            <a href="/profil"        class="nav-lk"><i class="bi bi-person"></i> Profil</a>
+            <form th:action="@{/logout}" method="post" style="display:inline; margin:0">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="nav-lk" style="background:none; border:none; cursor:pointer; padding:7px 12px">
+                    <i class="bi bi-box-arrow-right"></i>
+                </button>
+            </form>
+            <a href="/vendeur/publier" class="btn-sell"><i class="bi bi-plus-lg"></i> Vendre</a>
+        </div>
     </div>
 </nav>
 

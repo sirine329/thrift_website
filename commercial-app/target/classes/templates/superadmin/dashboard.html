@@ -70,8 +70,11 @@
                         <table class="table">
                             <thead><tr><th>Vendeur</th><th>Email</th><th>Ventes</th></tr></thead>
                             <tbody>
+                            <tr th:if="${topVendeurs.empty}">
+                                <td colspan="3" class="text-center py-4 text-muted">Aucun vendeur avec article pour le moment</td>
+                            </tr>
                             <tr th:each="v : ${topVendeurs}">
-                                <td th:text="${v.prenom + ' ' + v.nom}"></td>
+                                <td th:text="${v.nom}"></td>
                                 <td th:text="${v.email}"></td>
                                 <td th:text="${v.nbVentes}">0</td>
                             </tr>

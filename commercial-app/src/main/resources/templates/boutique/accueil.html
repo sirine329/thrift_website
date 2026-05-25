@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,13 +19,22 @@
     <div class="container">
         <a class="navbar-brand" href="/">🛍️ ThriftBy</a>
         <div class="navbar-nav ms-auto">
-            <a class="nav-link" href="/boutique/shop">Catalogue</a>
-            <a class="nav-link" href="/panier">Panier</a>
-            <a class="nav-link" href="/profil">Profil</a>
-            <form th:action="@{/logout}" method="post" style="display:inline">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                <button type="submit" class="nav-link" style="background:none; border:none; cursor:pointer">Déconnexion</button>
-            </form>
+            <!-- Pour les visiteurs non authentifiés -->
+            <div sec:authorize="isAnonymous()">
+                <a class="nav-link" href="/boutique/shop">Catalogue</a>
+                <a class="nav-link" href="/login">Sign In</a>
+            </div>
+            
+            <!-- Pour les utilisateurs authentifiés -->
+            <div sec:authorize="isAuthenticated()">
+                <a class="nav-link" href="/boutique/shop">Catalogue</a>
+                <a class="nav-link" href="/panier">Panier</a>
+                <a class="nav-link" href="/profil">Profil</a>
+                <form th:action="@{/logout}" method="post" style="display:inline">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="nav-link" style="background:none; border:none; cursor:pointer">Sign Out</button>
+                </form>
+            </div>
         </div>
     </div>
 </nav>

@@ -60,8 +60,8 @@ public class SecurityConfig {
                         .requestMatchers("/", "/login", "/register", "/error").permitAll()
                         .requestMatchers("/boutique", "/boutique/**").permitAll()
 
-                        // Ressources statiques
-                        .requestMatchers("/css/**", "/js/**", "/images/**",
+                        // Ressources statiques et uploads
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**",
                                 "/webjars/**", "/favicon.ico").permitAll()
 
                         // API publique (register + login)

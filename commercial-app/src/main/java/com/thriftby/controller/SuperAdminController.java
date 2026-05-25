@@ -29,6 +29,7 @@ public class SuperAdminController {
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         model.addAttribute("totalUsers",      userService.countUsers());
+        model.addAttribute("totalVendeurs",   userService.countUsers());
         model.addAttribute("totalAdmins",     userService.countAdmins());
         model.addAttribute("totalActifs",     userService.countActifs());
         model.addAttribute("totalTotal",      userService.countTotal());
@@ -38,10 +39,18 @@ public class SuperAdminController {
         model.addAttribute("totalCommandes",  commandeService.countTotal());
         model.addAttribute("chiffreAffaires", commandeService.getChiffreAffaires());
         model.addAttribute("allUsers",        userService.findAll());
-        // Pas de top vendeurs : liste vide pour compatibilité avec le template existant
-        model.addAttribute("topVendeurs",     List.of());
+        model.addAttribute("topVendeurs",     userService.findByRole(Role.USER).stream()
+                .map(user -> new TopVendeur(user.getPrenom() + " " + user.getNom(),
+                        user.getEmail(),
+                        itemService.countByVendeurId(user.getId())))
+                .filter(vendeur -> vendeur.nbVentes() > 0)
+                .sorted((a, b) -> Long.compare(b.nbVentes(), a.nbVentes()))
+                .limit(5)
+                .toList());
         return "superadmin/dashboard";
     }
+
+    private record TopVendeur(String nom, String email, long nbVentes) {}
 
     // ====== GESTION ADMINS ======
     @GetMapping("/admins")

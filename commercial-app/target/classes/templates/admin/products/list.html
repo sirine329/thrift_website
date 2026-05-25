@@ -1,103 +1,175 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head th:replace="~{fragments/layout :: head('Produits')}"></head>
+<head th:replace="~{fragments/layout :: head('Articles')}"></head>
 <body>
 <div class="d-flex">
     <div th:replace="~{fragments/layout :: sidebar('products')}"></div>
     <div class="main-content flex-grow-1">
-        <div th:replace="~{fragments/layout :: topbar('Gestion des Produits')}"></div>
+        <div th:replace="~{fragments/layout :: topbar('Gestion des Articles')}"></div>
         <div class="page-content">
             <div th:replace="~{fragments/layout :: alerts}"></div>
 
-            <!-- HEADER -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h5 class="fw-700 mb-1">Produits</h5>
-                    <p class="text-muted mb-0 small">Gérez votre catalogue de produits</p>
+                    <h5 class="fw-700 mb-1">Articles</h5>
+                    <p class="text-muted mb-0 small">Gerez les articles publies par les vendeurs</p>
                 </div>
-                <a href="/admin/products/new" class="btn btn-primary">
-                    <i class="bi bi-plus-lg me-2"></i>Nouveau produit
+                <a href="/boutique/shop" class="btn btn-primary">
+                    <i class="bi bi-grid me-2"></i>Voir la boutique
                 </a>
             </div>
 
-            <!-- SEARCH -->
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="label">Articles total</div>
+                                <div class="value" th:text="${totalItems}">0</div>
+                            </div>
+                            <div class="icon" style="background:#ede9fe;color:#7c3aed"><i class="bi bi-box-seam"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="label">Disponibles</div>
+                                <div class="value" th:text="${itemsDisponibles}">0</div>
+                            </div>
+                            <div class="icon" style="background:#dcfce7;color:#16a34a"><i class="bi bi-check-circle"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="label">Vendus</div>
+                                <div class="value" th:text="${itemsVendus}">0</div>
+                            </div>
+                            <div class="icon" style="background:#fee2e2;color:#dc2626"><i class="bi bi-cart-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="label">Categories</div>
+                                <div class="value" th:text="${totalCategories}">0</div>
+                            </div>
+                            <div class="icon" style="background:#fef3c7;color:#d97706"><i class="bi bi-grid-3x3-gap"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="form-card mb-4">
                 <form th:action="@{/admin/products}" method="get" class="d-flex gap-2">
                     <input type="text" name="search" th:value="${search}"
-                           class="form-control" placeholder="Rechercher par nom ou référence..."/>
+                           class="form-control" placeholder="Rechercher par titre, description ou categorie..."/>
                     <button type="submit" class="btn btn-primary px-4">
                         <i class="bi bi-search"></i>
                     </button>
-                    <a href="/admin/products" class="btn btn-outline-secondary">Réinitialiser</a>
+                    <a href="/admin/products" class="btn btn-outline-secondary">Reinitialiser</a>
                 </form>
             </div>
 
-            <!-- TABLE -->
             <div class="table-card">
                 <div class="table-responsive">
                     <table class="table align-middle mb-0">
                         <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Produit</th>
-                                <th>Catégorie</th>
-                                <th>Fournisseur</th>
-                                <th>Prix</th>
-                                <th>Stock</th>
-                                <th>Statut</th>
-                                <th>Actions</th>
-                            </tr>
+                        <tr>
+                            <th>#</th>
+                            <th>Article</th>
+                            <th>Categorie</th>
+                            <th>Vendeur</th>
+                            <th>Prix</th>
+                            <th>Details</th>
+                            <th>Statut</th>
+                            <th>Likes</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            <tr th:if="${products.empty}">
-                                <td colspan="8" class="text-center py-5 text-muted">
-                                    <i class="bi bi-box-seam fs-1 d-block mb-2 opacity-25"></i>
-                                    Aucun produit trouvé
-                                </td>
-                            </tr>
-                            <tr th:each="p, iter : ${products}">
-                                <td class="text-muted small" th:text="${iter.index + 1}"></td>
-                                <td>
-                                    <div class="fw-600" th:text="${p.nom}"></div>
-                                    <small class="text-muted" th:text="${p.reference}"></small>
-                                </td>
-                                <td>
-                                    <span class="badge bg-light text-dark border" th:text="${p.categorie.nom}"></span>
-                                </td>
-                                <td class="text-muted small" th:text="${p.fournisseur.nom}"></td>
-                                <td>
-                                    <strong th:text="${#numbers.formatDecimal(p.prix,1,2)} + ' DT'"></strong>
-                                    <div class="text-muted small" th:if="${p.prixAchat != null}"
-                                         th:text="'Achat: ' + ${#numbers.formatDecimal(p.prixAchat,1,2)} + ' DT'"></div>
-                                </td>
-                                <td>
-                                    <span th:class="${p.stockBas ? 'badge badge-bas' : 'badge badge-actif'} + ' rounded-pill px-3'"
-                                          th:text="${p.stock} + ' unités'"></span>
-                                </td>
-                                <td>
-                                    <span th:class="${p.actif ? 'badge badge-actif' : 'badge badge-inactif'} + ' rounded-pill'"
-                                          th:text="${p.actif ? 'Actif' : 'Inactif'}"></span>
-                                </td>
-                                <td>
-                                    <div class="d-flex gap-1">
-                                        <a th:href="@{/admin/products/edit/{id}(id=${p.id})}"
-                                           class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a th:href="@{/admin/products/toggle/{id}(id=${p.id})}"
-                                           class="btn btn-sm btn-outline-warning"
-                                           th:title="${p.actif ? 'Désactiver' : 'Activer'}">
-                                            <i th:class="${p.actif ? 'bi bi-pause' : 'bi bi-play'}"></i>
-                                        </a>
-                                        <a th:href="@{/admin/products/delete/{id}(id=${p.id})}"
-                                           class="btn btn-sm btn-outline-danger"
-                                           onclick="return confirm('Confirmer la suppression ?')">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
+                        <tr th:if="${items.empty}">
+                            <td colspan="10" class="text-center py-5 text-muted">
+                                <i class="bi bi-box-seam fs-1 d-block mb-2 opacity-25"></i>
+                                Aucun article trouve
+                            </td>
+                        </tr>
+                        <tr th:each="p, iter : ${items}">
+                            <td class="text-muted small" th:text="${iter.index + 1}">1</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <img th:if="${p.photoUrl != null}" th:src="${p.photoUrl}" th:alt="${p.titre}"
+                                         style="width:46px;height:56px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0;">
+                                    <div th:if="${p.photoUrl == null}"
+                                         style="width:46px;height:56px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;display:flex;align-items:center;justify-content:center;color:#94a3b8;">
+                                        <i class="bi bi-image"></i>
                                     </div>
-                                </td>
-                            </tr>
+                                    <div>
+                                        <div class="fw-600" th:text="${p.titre}">Titre</div>
+                                        <small class="text-muted" th:text="'#' + ${p.id}">#0</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border"
+                                      th:text="${p.categorie != null ? p.categorie.nom : 'Sans categorie'}">Categorie</span>
+                            </td>
+                            <td>
+                                <div class="fw-600"
+                                     th:text="${p.vendeur != null ? p.vendeur.prenom + ' ' + p.vendeur.nom : 'Vendeur inconnu'}">Vendeur</div>
+                                <small class="text-muted" th:text="${p.vendeur != null ? p.vendeur.email : ''}">email</small>
+                            </td>
+                            <td>
+                                <strong th:text="${#numbers.formatDecimal(p.prix,1,2)} + ' DT'">0 DT</strong>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border me-1" th:text="${p.taille}">Taille</span>
+                                <span class="badge bg-light text-dark border" th:text="${p.etat}">Etat</span>
+                            </td>
+                            <td>
+                                <span th:class="${p.actif ? 'badge badge-actif' : 'badge badge-inactif'} + ' rounded-pill mb-1'"
+                                      th:text="${p.actif ? 'Actif' : 'Inactif'}">Actif</span>
+                                <div>
+                                    <span th:class="${p.statut != null && p.statut.name() == 'DISPONIBLE' ? 'badge badge-actif' : 'badge badge-inactif'} + ' rounded-pill'"
+                                          th:text="${p.statut != null ? p.statut.libelle : 'Statut inconnu'}">Disponible</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border rounded-pill">
+                                    <i class="bi bi-heart me-1"></i><span th:text="${p.nbLikes != null ? p.nbLikes : 0}">0</span>
+                                </span>
+                            </td>
+                            <td class="text-muted small"
+                                th:text="${p.createdAt != null ? #temporals.format(p.createdAt, 'dd/MM/yyyy') : '-'}">-</td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <a th:href="@{/boutique/article/{id}(id=${p.id})}"
+                                       class="btn btn-sm btn-outline-primary"
+                                       title="Voir l'article">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a th:href="@{/admin/products/toggle/{id}(id=${p.id})}"
+                                       class="btn btn-sm btn-outline-warning"
+                                       th:title="${p.actif ? 'Desactiver' : 'Activer'}">
+                                        <i th:class="${p.actif ? 'bi bi-pause' : 'bi bi-play'}"></i>
+                                    </a>
+                                    <a th:href="@{/admin/products/delete/{id}(id=${p.id})}"
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('Confirmer la suppression ?')"
+                                       title="Supprimer">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>

@@ -1,6 +1,7 @@
 package com.thriftby.service;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,16 +17,20 @@ import java.util.UUID;
 @Service
 public class ImageStorageService {
 
-    private final Path uploadDir = Paths.get("uploads");
+    @Value("${app.upload-dir:uploads}")
+    private String uploadDirPath;
+
+    private Path uploadDir;
 
     @PostConstruct
     public void init() {
+        uploadDir = Paths.get(uploadDirPath).toAbsolutePath();
         try {
             if (!Files.exists(uploadDir)) {
                 Files.createDirectories(uploadDir);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Impossible de créer le dossier d'upload", e);
+            throw new RuntimeException("Impossible de créer le dossier d'upload: " + uploadDir, e);
         }
     }
 

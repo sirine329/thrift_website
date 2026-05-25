@@ -57,7 +57,12 @@ public class AdminController {
                 ? itemService.search(search)
                 : itemService.findAll();
         model.addAttribute("items", items);
+        model.addAttribute("products", items);
         model.addAttribute("search", search);
+        model.addAttribute("totalItems", itemService.countTotal());
+        model.addAttribute("itemsDisponibles", itemService.countDisponibles());
+        model.addAttribute("itemsVendus", itemService.countVendus());
+        model.addAttribute("totalCategories", categorieService.countTotal());
         return "admin/products/list";
     }
 
