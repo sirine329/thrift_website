@@ -11,6 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -36,12 +38,15 @@ public class AuthService {
                 .ville(req.ville)
                 .role(Role.USER)
                 .actif(true)
-                .verified(true)
-                .verificationToken(null)
+                .verified(false)
+                .verificationToken(UUID.randomUUID().toString())
                 .build();
 
         userRepository.save(user);
-        emailService.sendVerificationEmail(user);
+        boolean emailSent = emailService.sendVerificationEmail(user);
+        if (!emailSent) {
+            throw new BusinessException("Compte créé, mais aucun mail n'a été envoyé. Ajoutez MAIL_PASSWORD avec un mot de passe d'application Gmail.");
+        }
         return buildResponse(null, user);
     }
 

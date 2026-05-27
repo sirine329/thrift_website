@@ -22,29 +22,42 @@ public class EmailService {
     @Value("${resend.from:ThriftBy <noreply@thriftby.tn>}")
     private String fromAddress;
 
-    public void sendVerificationEmail(User user) {
+    @Value("${spring.mail.password:}")
+    private String mailPassword;
+
+    public boolean sendVerificationEmail(User user) {
         if (user == null || user.getEmail() == null || user.getVerificationToken() == null) {
-            return;
+            return false;
         }
 
         String verificationUrl = appBaseUrl + "/verify?token=" + user.getVerificationToken();
+
+        if (mailPassword == null || mailPassword.isBlank()) {
+            log.warn("MAIL_PASSWORD est vide. Email non envoye. Lien de verification : {}", verificationUrl);
+            return false;
+        }
+
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(user.getEmail());
         message.setFrom(fromAddress);
-        message.setSubject("Vérifiez votre adresse email ThriftBy");
+        message.setSubject("Verifiez votre adresse email ThriftBy");
         message.setText("Bonjour " + user.getPrenom() + ",\n\n"
-                + "Merci d'avoir créé un compte sur ThriftBy.\n"
+                + "Merci d'avoir cree un compte sur ThriftBy.\n"
+                + "Compte a verifier : " + user.getEmail() + "\n\n"
                 + "Pour activer votre compte, cliquez sur le lien suivant :\n"
                 + verificationUrl + "\n\n"
-                + "Si vous n'êtes pas à l'origine de cette demande, ignorez ce message.\n\n"
+                + "Si vous n'etes pas a l'origine de cette demande, ignorez ce message.\n\n"
                 + "Cordialement,\n"
-                + "L'équipe ThriftBy");
+                + "L'equipe ThriftBy");
 
         try {
             mailSender.send(message);
-            log.info("✅ Email de vérification envoyé à {}", user.getEmail());
+            log.info("Email de verification envoye a {}", user.getEmail());
+            return true;
         } catch (MailException ex) {
-            log.warn("⚠️ Impossible d'envoyer l'email de vérification à {}. Lien de vérification : {}", user.getEmail(), verificationUrl, ex);
+            log.warn("Impossible d'envoyer l'email de verification a {}. Lien de verification : {}",
+                    user.getEmail(), verificationUrl, ex);
+            return false;
         }
     }
 }

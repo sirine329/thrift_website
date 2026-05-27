@@ -12,12 +12,16 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.thriftby.service.EmailService;
+import java.util.UUID;
+
 @Controller
 @RequiredArgsConstructor
 public class WebViewController {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @GetMapping("/login")
     public String login(
@@ -71,12 +75,17 @@ public class WebViewController {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(Role.USER);
         user.setActif(true);
-        user.setVerified(true);
-        user.setVerificationToken(null);
+        user.setVerified(false);
+        user.setVerificationToken(UUID.randomUUID().toString());
 
         userRepository.save(user);
+        boolean emailSent = emailService.sendVerificationEmail(user);
 
-        ra.addFlashAttribute("success", "Compte cree avec succes. Vous pouvez vous connecter.");
+        if (emailSent) {
+            ra.addFlashAttribute("success", "Compte cree avec succes. Un email de verification a ete envoye a " + user.getEmail() + ".");
+        } else {
+            ra.addFlashAttribute("error", "Compte cree, mais aucun mail n'a ete envoye. Ajoutez MAIL_PASSWORD avec un mot de passe d'application Gmail.");
+        }
         return "redirect:/login";
     }
 
@@ -100,6 +109,29 @@ public class WebViewController {
         userRepository.save(user);
 
         ra.addFlashAttribute("success", "Adresse e-mail verifiee. Vous pouvez vous connecter.");
+        return "redirect:/login";
+    }
+
+    @GetMapping("/verify-dev")
+    public String verifyEmailDev(@RequestParam(required = false) String email,
+                                 RedirectAttributes ra) {
+        if (email == null || email.isBlank()) {
+            ra.addFlashAttribute("error", "Email manquant. Usage: /verify-dev?email=user@example.com");
+            return "redirect:/login";
+        }
+
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            ra.addFlashAttribute("error", "Utilisateur non trouve pour cet email.");
+            return "redirect:/login";
+        }
+
+        user.setVerified(true);
+        user.setActif(true);
+        user.setVerificationToken(null);
+        userRepository.save(user);
+
+        ra.addFlashAttribute("success", "Email " + email + " verifie avec succes. Vous pouvez vous connecter.");
         return "redirect:/login";
     }
 }
